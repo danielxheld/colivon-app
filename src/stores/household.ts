@@ -19,7 +19,7 @@ export const useHouseholdStore = defineStore('household', () => {
 
       // Set first household as current if none selected
       if (!currentHousehold.value && households.value.length > 0) {
-        currentHousehold.value = households.value[0]
+        currentHousehold.value = households.value[0] ?? null
       }
 
       return response.data.data
@@ -84,7 +84,7 @@ export const useHouseholdStore = defineStore('household', () => {
       households.value = households.value.filter((h) => h.id !== householdId)
 
       if (currentHousehold.value?.id === householdId) {
-        currentHousehold.value = households.value.length > 0 ? households.value[0] : null
+        currentHousehold.value = households.value.length > 0 ? (households.value[0] ?? null) : null
       }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to leave household'
@@ -132,7 +132,7 @@ export const useHouseholdStore = defineStore('household', () => {
       households.value = households.value.filter((h) => h.id !== householdId)
 
       if (currentHousehold.value?.id === householdId) {
-        currentHousehold.value = households.value.length > 0 ? households.value[0] : null
+        currentHousehold.value = households.value.length > 0 ? (households.value[0] ?? null) : null
       }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to delete household'

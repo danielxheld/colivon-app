@@ -97,7 +97,7 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
       lists.value = lists.value.filter((l) => l.id !== listId)
 
       if (currentList.value?.id === listId) {
-        currentList.value = lists.value.length > 0 ? lists.value[0] : null
+        currentList.value = lists.value.length > 0 ? (lists.value[0] ?? null) : null
       }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to delete shopping list'
@@ -164,10 +164,12 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
       unit?: string
       category?: string
       note?: string
+      notes_for_shopper?: string
       price?: number
       aisle_order?: number
       is_recurring?: boolean
       recurrence_interval?: RecurrenceInterval
+      shared_cost?: boolean
     }
   ) {
     loading.value = true

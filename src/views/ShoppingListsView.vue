@@ -117,14 +117,46 @@
               </div>
             </div>
 
-            <!-- Shopping Mode Badge -->
-            <div v-if="list.currently_shopping_by_id" class="mt-2">
-              <div class="flex items-center space-x-2 px-3 py-1.5 bg-green-500/20 border border-white/30 rounded-full text-white text-xs font-medium">
-                <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
-                </span>
-                <span>{{ list.currently_shopping_by?.name || 'Someone' }} is shopping now</span>
+            <!-- Shopping Mode Actions & Status -->
+            <div class="mt-3 flex items-center justify-between gap-3">
+              <div v-if="list.currently_shopping_by_id" class="flex-1">
+                <div class="flex items-center space-x-2 px-3 py-1.5 bg-green-500/20 border border-white/30 rounded-full text-white text-xs font-medium">
+                  <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+                  </span>
+                  <span>🛒 {{ list.currently_shopping_by?.name || 'Someone' }} is shopping</span>
+                  <span v-if="list.shopping_started_at" class="text-white/60">
+                    • {{ getShoppingDuration(list.shopping_started_at) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <!-- Expense Button -->
+                <button
+                  v-if="getCompletedItems(list).length > 0"
+                  @click="showExpenseModal(list)"
+                  class="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full text-white text-xs font-medium transition-all"
+                >
+                  💶 Expenses
+                </button>
+
+                <!-- Shopping Mode Toggle -->
+                <button
+                  v-if="!list.currently_shopping_by_id"
+                  @click="startShoppingMode(list.id)"
+                  class="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full text-white text-xs font-medium transition-all"
+                >
+                  🛒 Start Shopping
+                </button>
+                <button
+                  v-else-if="list.currently_shopping_by_id === authStore.user?.id"
+                  @click="stopShoppingMode(list.id)"
+                  class="px-3 py-1.5 bg-red-500/30 hover:bg-red-500/50 rounded-full text-white text-xs font-medium transition-all"
+                >
+                  ✓ Done Shopping
+                </button>
               </div>
             </div>
           </div>
@@ -159,6 +191,7 @@
                 v-for="item in category.items"
                 :key="item.id"
                 class="px-6 py-4 hover:bg-gray-50 transition-all"
+                :class="{ 'bg-blue-50/30': item.claimed_by_id === authStore.user?.id }"
               >
                 <div class="flex items-start space-x-3">
                   <input
@@ -168,26 +201,64 @@
                     class="h-6 w-6 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded-lg cursor-pointer mt-0.5 flex-shrink-0"
                   >
                   <div class="flex-1 min-w-0">
-                    <div class="flex items-center space-x-2 flex-wrap">
+                    <div class="flex items-center space-x-2 flex-wrap mb-1">
                       <span class="text-sm font-medium text-gray-900">
                         {{ item.name }}
+                      </span>
+
+                      <!-- Badges -->
+                      <span v-if="!item.shared_cost" class="text-xs px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full font-medium">
+                        👤 Personal
                       </span>
                       <span v-if="item.is_recurring" class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded-full font-medium">
                         🔄 {{ item.recurrence_interval }}
                       </span>
                       <span v-if="item.price" class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full font-bold">
-                        {{ item.price }}€
+                        ~{{ item.price }}€
+                      </span>
+                      <span v-if="item.claimed_by" class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
+                        🙋 {{ item.claimed_by.name }}
                       </span>
                     </div>
-                    <div class="mt-1 space-y-0.5">
+
+                    <div class="mt-1 space-y-1">
                       <p v-if="item.quantity" class="text-xs text-gray-500">
                         📦 {{ item.quantity }}{{ item.unit ? ' ' + item.unit : '' }}
                       </p>
                       <p v-if="item.note" class="text-xs text-gray-600 italic">
                         💬 {{ item.note }}
                       </p>
+                      <p v-if="item.notes_for_shopper" class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                        🛒 For shopper: {{ item.notes_for_shopper }}
+                      </p>
+                    </div>
+
+                    <!-- Claim Actions -->
+                    <div v-if="list.currently_shopping_by_id" class="mt-2 flex items-center gap-2">
+                      <button
+                        v-if="!item.claimed_by_id"
+                        @click="claimItemAction(item.id)"
+                        class="text-xs px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-full font-medium transition-all"
+                      >
+                        🙋 I'll buy this
+                      </button>
+                      <button
+                        v-else-if="item.claimed_by_id === authStore.user?.id"
+                        @click="unclaimItemAction(item.id)"
+                        class="text-xs px-3 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-full font-medium transition-all"
+                      >
+                        ✖ Unclaim
+                      </button>
+                      <button
+                        v-if="item.claimed_by_id === authStore.user?.id && list.currently_shopping_by_id === authStore.user?.id"
+                        @click="openMarkBoughtModal(item)"
+                        class="text-xs px-3 py-1 bg-emerald-500 text-white hover:bg-emerald-600 rounded-full font-medium transition-all"
+                      >
+                        ✓ Mark Bought
+                      </button>
                     </div>
                   </div>
+
                   <div class="flex space-x-1 flex-shrink-0">
                     <button
                       @click="openEditItemModal(item)"
@@ -218,11 +289,16 @@
           <!-- Completed Items Section -->
           <div v-if="getCompletedItems(list).length > 0" class="border-t-4 border-gray-100">
             <div class="px-6 py-3 bg-gray-50/80">
-              <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                Completed ({{ getCompletedItems(list).length }})
+              <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center justify-between">
+                <span class="flex items-center">
+                  <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Completed ({{ getCompletedItems(list).length }})
+                </span>
+                <span v-if="getTotalActualSpent(list) > 0" class="text-gray-600 font-bold">
+                  Total: {{ getTotalActualSpent(list).toFixed(2) }}€
+                </span>
               </h4>
             </div>
             <div class="divide-y divide-gray-50">
@@ -239,15 +315,24 @@
                     class="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded cursor-pointer mt-0.5 flex-shrink-0"
                   >
                   <div class="flex-1 min-w-0">
-                    <div class="flex items-center space-x-2 flex-wrap">
+                    <div class="flex items-center space-x-2 flex-wrap mb-1">
                       <span class="text-sm font-medium line-through text-gray-400">
                         {{ item.name }}
+                      </span>
+                      <span v-if="item.actual_price" class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-bold">
+                        {{ item.actual_price }}€
+                      </span>
+                      <span v-if="item.bought_by" class="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
+                        💳 {{ item.bought_by.name }}
+                      </span>
+                      <span v-if="!item.shared_cost" class="text-xs px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full font-medium">
+                        👤 Personal
                       </span>
                       <span v-if="item.is_recurring && item.next_recurrence_date" class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full font-medium">
                         📅 Returns {{ formatDate(item.next_recurrence_date) }}
                       </span>
                     </div>
-                    <p v-if="item.quantity" class="text-xs text-gray-400 mt-0.5">
+                    <p v-if="item.quantity" class="text-xs text-gray-400">
                       {{ item.quantity }}{{ item.unit ? ' ' + item.unit : '' }}
                     </p>
                   </div>
@@ -280,6 +365,170 @@
 
     <!-- Bottom Navigation -->
     <BottomNavigation />
+
+    <!-- Mark as Bought Modal -->
+    <Transition
+      enter-active-class="transition-all duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showMarkBoughtModal" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20">
+          <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="closeMarkBoughtModal"></div>
+
+          <div class="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <div class="text-center mb-6">
+              <div class="text-4xl mb-3">💳</div>
+              <h3 class="text-2xl font-bold text-gray-900">Mark as Bought</h3>
+              <p class="text-sm text-gray-600 mt-2">{{ markBoughtItem?.name }}</p>
+            </div>
+
+            <form @submit.prevent="handleMarkBought()">
+              <div class="space-y-4">
+                <div>
+                  <label for="actual_price" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Actual Price (€)
+                  </label>
+                  <input
+                    id="actual_price"
+                    v-model.number="markBoughtForm.actual_price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Enter actual price..."
+                    class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+                  >
+                  <p v-if="markBoughtItem?.price" class="text-xs text-gray-500 mt-1">
+                    Estimated: {{ markBoughtItem.price }}€
+                  </p>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    @click="closeMarkBoughtModal"
+                    class="flex-1 px-6 py-3 text-sm font-bold text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl hover:shadow-lg transition-all active:scale-95"
+                  >
+                    ✓ Confirm
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Expense Breakdown Modal -->
+    <Transition
+      enter-active-class="transition-all duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showExpensesModal && currentExpenses" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20">
+          <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="closeExpensesModal"></div>
+
+          <div class="relative bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-6">
+              <div class="text-4xl mb-3">💶</div>
+              <h3 class="text-2xl font-bold text-gray-900">Expense Breakdown</h3>
+            </div>
+
+            <!-- Total Summary -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 text-white mb-6">
+              <div class="text-center">
+                <p class="text-white/80 text-sm mb-1">Total Spent</p>
+                <p class="text-4xl font-bold">{{ currentExpenses.total_spent.toFixed(2) }}€</p>
+                <p class="text-white/60 text-xs mt-2">{{ currentExpenses.total_items }} items</p>
+              </div>
+            </div>
+
+            <!-- Shared vs Personal -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="bg-blue-50 rounded-2xl p-4">
+                <p class="text-xs text-blue-600 font-semibold mb-1">👥 Shared Costs</p>
+                <p class="text-2xl font-bold text-blue-700">{{ currentExpenses.shared_cost_total.toFixed(2) }}€</p>
+              </div>
+              <div class="bg-purple-50 rounded-2xl p-4">
+                <p class="text-xs text-purple-600 font-semibold mb-1">👤 Personal Costs</p>
+                <p class="text-2xl font-bold text-purple-700">{{ currentExpenses.personal_cost_total.toFixed(2) }}€</p>
+              </div>
+            </div>
+
+            <!-- By Person -->
+            <div class="mb-6">
+              <h4 class="text-sm font-bold text-gray-700 mb-3">By Person</h4>
+              <div class="space-y-3">
+                <div
+                  v-for="person in currentExpenses.by_person"
+                  :key="person.user.id"
+                  class="bg-gray-50 rounded-2xl p-4"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="font-semibold text-gray-900">{{ person.user.name }}</span>
+                    <span class="text-lg font-bold text-emerald-600">{{ person.total_spent.toFixed(2) }}€</span>
+                  </div>
+                  <div class="flex items-center justify-between text-xs text-gray-600">
+                    <span>👥 Shared: {{ person.shared_items_total.toFixed(2) }}€</span>
+                    <span>👤 Personal: {{ person.personal_items_total.toFixed(2) }}€</span>
+                    <span>📦 {{ person.items_count }} items</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Split Calculation -->
+            <div class="border-t-2 border-gray-100 pt-6">
+              <h4 class="text-sm font-bold text-gray-700 mb-3">Fair Split Calculation</h4>
+              <div class="space-y-3">
+                <div
+                  v-for="split in currentExpenses.split_calculation"
+                  :key="split.user.id"
+                  class="flex items-center justify-between p-4 rounded-2xl"
+                  :class="split.balance < 0 ? 'bg-green-50' : split.balance > 0 ? 'bg-red-50' : 'bg-gray-50'"
+                >
+                  <div>
+                    <p class="font-semibold text-gray-900">{{ split.user.name }}</p>
+                    <p class="text-xs text-gray-600">Paid: {{ split.paid.toFixed(2) }}€ • Should pay: {{ split.should_pay.toFixed(2) }}€</p>
+                  </div>
+                  <div class="text-right">
+                    <p
+                      class="text-lg font-bold"
+                      :class="split.balance < 0 ? 'text-green-600' : split.balance > 0 ? 'text-red-600' : 'text-gray-600'"
+                    >
+                      {{ split.balance < 0 ? '+' : split.balance > 0 ? '-' : '' }}{{ Math.abs(split.balance).toFixed(2) }}€
+                    </p>
+                    <p class="text-xs" :class="split.balance < 0 ? 'text-green-600' : split.balance > 0 ? 'text-red-600' : 'text-gray-600'">
+                      {{ split.balance < 0 ? 'Gets back' : split.balance > 0 ? 'Owes' : 'Even' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              @click="closeExpensesModal"
+              class="w-full mt-6 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl hover:shadow-lg transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
     <!-- Create/Edit List Modal -->
     <Transition
@@ -472,6 +721,29 @@
                     ></textarea>
                   </div>
 
+                  <div>
+                    <label for="notes_for_shopper" class="block text-sm font-semibold text-gray-700 mb-2">🛒 Notes for Shopper</label>
+                    <textarea
+                      id="notes_for_shopper"
+                      v-model="itemForm.notes_for_shopper"
+                      rows="2"
+                      class="block w-full px-4 py-3 bg-blue-50 border-2 border-blue-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+                      placeholder="e.g., Get the organic one, check expiration date"
+                    ></textarea>
+                  </div>
+
+                  <div class="flex items-center p-4 bg-purple-50 rounded-2xl">
+                    <input
+                      id="shared_cost"
+                      v-model="itemForm.shared_cost"
+                      type="checkbox"
+                      class="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    >
+                    <label for="shared_cost" class="ml-3 text-sm font-medium text-gray-900">
+                      👥 Shared Cost (split between household members)
+                    </label>
+                  </div>
+
                   <div class="border-t-2 border-gray-100 pt-4">
                     <div class="flex items-center p-4 bg-emerald-50 rounded-2xl mb-3">
                       <input
@@ -565,10 +837,21 @@ const itemForm = reactive({
   unit: '',
   category: '',
   note: '',
+  notes_for_shopper: '',
   price: null as number | null,
   is_recurring: false,
   recurrence_interval: 'weekly' as RecurrenceInterval,
+  shared_cost: true,
 })
+
+// WG Shopping Mode State
+const showMarkBoughtModal = ref(false)
+const showExpensesModal = ref(false)
+const markBoughtItem = ref<ShoppingListItem | null>(null)
+const markBoughtForm = reactive({
+  actual_price: null as number | null,
+})
+const currentExpenses = ref<any>(null)
 
 onMounted(async () => {
   if (householdStore.currentHousehold) {
@@ -700,9 +983,11 @@ function openEditItemModal(item: ShoppingListItem) {
   itemForm.unit = item.unit || ''
   itemForm.category = item.category || ''
   itemForm.note = item.note || ''
+  itemForm.notes_for_shopper = item.notes_for_shopper || ''
   itemForm.price = item.price || null
   itemForm.is_recurring = item.is_recurring
   itemForm.recurrence_interval = item.recurrence_interval || 'weekly'
+  itemForm.shared_cost = item.shared_cost
   showEditItemModal.value = true
 }
 
@@ -716,9 +1001,11 @@ async function handleEditItem() {
       unit: itemForm.unit || undefined,
       category: itemForm.category || undefined,
       note: itemForm.note || undefined,
+      notes_for_shopper: itemForm.notes_for_shopper || undefined,
       price: itemForm.price || undefined,
       is_recurring: itemForm.is_recurring,
       recurrence_interval: itemForm.is_recurring ? itemForm.recurrence_interval : undefined,
+      shared_cost: itemForm.shared_cost,
     })
     closeItemModal()
   } catch (error) {
@@ -734,9 +1021,11 @@ function closeItemModal() {
   itemForm.unit = ''
   itemForm.category = ''
   itemForm.note = ''
+  itemForm.notes_for_shopper = ''
   itemForm.price = null
   itemForm.is_recurring = false
   itemForm.recurrence_interval = 'weekly'
+  itemForm.shared_cost = true
 }
 
 function getActiveItems(list: ShoppingList): ShoppingListItem[] {
@@ -795,5 +1084,101 @@ function getListTotal(list: ShoppingList): number {
   return list.items
     .filter(item => !item.is_completed && item.price)
     .reduce((sum, item) => sum + (item.price || 0), 0)
+}
+
+// WG Shopping Mode Functions
+async function startShoppingMode(listId: number) {
+  try {
+    await shoppingListStore.startShopping(listId)
+  } catch (error) {
+    console.error('Failed to start shopping mode:', error)
+  }
+}
+
+async function stopShoppingMode(listId: number) {
+  try {
+    await shoppingListStore.stopShopping(listId)
+  } catch (error) {
+    console.error('Failed to stop shopping mode:', error)
+  }
+}
+
+async function claimItemAction(itemId: number) {
+  try {
+    await shoppingListStore.claimItem(itemId)
+  } catch (error) {
+    console.error('Failed to claim item:', error)
+  }
+}
+
+async function unclaimItemAction(itemId: number) {
+  try {
+    await shoppingListStore.unclaimItem(itemId)
+  } catch (error) {
+    console.error('Failed to unclaim item:', error)
+  }
+}
+
+function openMarkBoughtModal(item: ShoppingListItem) {
+  markBoughtItem.value = item
+  markBoughtForm.actual_price = item.price || null
+  showMarkBoughtModal.value = true
+}
+
+function closeMarkBoughtModal() {
+  showMarkBoughtModal.value = false
+  markBoughtItem.value = null
+  markBoughtForm.actual_price = null
+}
+
+async function handleMarkBought() {
+  if (!markBoughtItem.value) return
+
+  try {
+    await shoppingListStore.markAsBought(
+      markBoughtItem.value.id,
+      markBoughtForm.actual_price || undefined
+    )
+    closeMarkBoughtModal()
+  } catch (error) {
+    console.error('Failed to mark item as bought:', error)
+  }
+}
+
+async function showExpenseModal(list: ShoppingList) {
+  try {
+    const expenses = await shoppingListStore.getExpenses(list.id)
+    currentExpenses.value = expenses
+    showExpensesModal.value = true
+  } catch (error) {
+    console.error('Failed to load expenses:', error)
+  }
+}
+
+function closeExpensesModal() {
+  showExpensesModal.value = false
+  currentExpenses.value = null
+}
+
+function getShoppingDuration(startTime: string): string {
+  const start = new Date(startTime)
+  const now = new Date()
+  const diffMs = now.getTime() - start.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+
+  if (diffMins < 60) {
+    return `${diffMins}m`
+  } else {
+    const hours = Math.floor(diffMins / 60)
+    const mins = diffMins % 60
+    return `${hours}h ${mins}m`
+  }
+}
+
+function getTotalActualSpent(list: ShoppingList): number {
+  if (!list.items) return 0
+  return list.items
+    .filter(item => item.is_completed && item.actual_price)
+    .reduce((sum, item) => sum + (item.actual_price || 0), 0)
 }
 </script>

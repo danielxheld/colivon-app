@@ -51,7 +51,7 @@
                 v-model="notes"
                 rows="3"
                 placeholder="Zusätzliche Bemerkungen..."
-                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors resize-none"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors resize-none"
               ></textarea>
             </div>
 

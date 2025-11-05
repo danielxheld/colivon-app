@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 pb-20">
+  <div class="min-h-screen bg-gradient-to-br from-emerald-50/30 via-teal-50/20 to-green-50/30 pb-20">
     <!-- Hero Header -->
-    <header class="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 text-white">
+    <header class="bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
       <div class="px-6 py-12 max-w-2xl mx-auto">
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center space-x-3">
@@ -30,7 +30,7 @@
             class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all"
             :class="
               currentTab === 'monthly'
-                ? 'bg-white text-orange-600'
+                ? 'bg-white text-emerald-700'
                 : 'text-white/80 hover:text-white'
             "
           >
@@ -41,7 +41,7 @@
             class="flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all"
             :class="
               currentTab === 'alltime'
-                ? 'bg-white text-orange-600'
+                ? 'bg-white text-teal-700'
                 : 'text-white/80 hover:text-white'
             "
           >
@@ -62,18 +62,18 @@
       <!-- My Rank Card -->
       <div
         v-if="myRank"
-        class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl p-6 text-white shadow-xl"
+        class="bg-white border-2 border-emerald-200 rounded-3xl p-6 shadow-sm"
       >
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-white/80 text-sm font-medium mb-1">Dein Rang</p>
-            <h2 class="text-4xl font-bold mb-2">#{{ myRank.rank }}</h2>
-            <p class="text-white/90 text-sm">von {{ myRank.total_members }} Mitgliedern</p>
+            <p class="text-emerald-600 text-sm font-medium mb-1">Dein Rang</p>
+            <h2 class="text-4xl font-bold mb-2 text-emerald-700">#{{ myRank.rank }}</h2>
+            <p class="text-gray-600 text-sm">von {{ myRank.total_members }} Mitgliedern</p>
           </div>
           <div class="text-right">
-            <p class="text-white/80 text-xs font-medium mb-1">{{ myRank.stats.title }}</p>
-            <p class="text-2xl font-bold">Level {{ myRank.stats.level }}</p>
-            <p class="text-white/90 text-sm mt-1">
+            <p class="text-teal-600 text-xs font-medium mb-1">{{ myRank.stats.title }}</p>
+            <p class="text-2xl font-bold text-gray-900">Level {{ myRank.stats.level }}</p>
+            <p class="text-gray-600 text-sm mt-1">
               {{ currentTab === 'monthly' ? myRank.stats.current_month_xp : myRank.stats.total_xp }} XP
             </p>
           </div>
@@ -81,8 +81,8 @@
       </div>
 
       <!-- Leaderboard -->
-      <section class="bg-white rounded-3xl shadow-lg overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+      <section class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <h2 class="text-xl font-bold">
             {{ currentTab === 'monthly' ? 'Monats-Rangliste' : 'All-Time Rangliste' }}
           </h2>
@@ -115,9 +115,9 @@
                   v-if="index < 3"
                   class="w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold"
                   :class="{
-                    'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white': index === 0,
+                    'bg-gradient-to-br from-amber-400 to-amber-600 text-white': index === 0,
                     'bg-gradient-to-br from-gray-300 to-gray-500 text-white': index === 1,
-                    'bg-gradient-to-br from-orange-400 to-orange-600 text-white': index === 2,
+                    'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white': index === 2,
                   }"
                 >
                   {{ index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉' }}
@@ -138,7 +138,7 @@
                   </h3>
                   <span
                     v-if="stat.user_id === authStore.user?.id"
-                    class="px-2 py-0.5 bg-indigo-500 text-white text-xs font-bold rounded-full"
+                    class="px-2 py-0.5 bg-emerald-600 text-white text-xs font-bold rounded-full"
                   >
                     DU
                   </span>
@@ -167,9 +167,9 @@
                 <div
                   class="h-full transition-all duration-300"
                   :class="{
-                    'bg-gradient-to-r from-yellow-400 to-yellow-600': index === 0,
+                    'bg-gradient-to-r from-amber-400 to-amber-600': index === 0,
                     'bg-gradient-to-r from-gray-400 to-gray-600': index === 1,
-                    'bg-gradient-to-r from-orange-400 to-orange-600': index === 2,
+                    'bg-gradient-to-r from-emerald-400 to-emerald-600': index === 2,
                   }"
                   :style="{
                     width: ((currentTab === 'monthly' ? stat.current_month_xp : stat.total_xp) / (currentTab === 'monthly' ? leaderboard[0].current_month_xp : leaderboard[0].total_xp)) * 100 + '%'
@@ -202,7 +202,7 @@
 
       <!-- My Awards -->
       <section v-if="myAwards.length > 0" class="bg-white rounded-3xl shadow-lg overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+        <div class="p-6 bg-gradient-to-r from-teal-600 to-green-600 text-white">
           <h2 class="text-xl font-bold">Meine Awards</h2>
           <p class="text-white/80 text-sm">{{ myAwards.length }} freigeschaltet</p>
         </div>

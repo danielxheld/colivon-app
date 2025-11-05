@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 pb-20">
+  <div class="min-h-screen bg-gradient-to-br from-emerald-50/30 via-teal-50/20 to-green-50/30 pb-20">
     <!-- Hero Header -->
     <PageHeader
       title="Aufgaben"
@@ -61,35 +61,35 @@
         <button
           @click="handleRunRoulette"
           :disabled="!householdStore.currentHousehold"
-          class="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          class="bg-white border-2 border-emerald-200 text-emerald-700 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <div class="text-3xl mb-2">🎰</div>
           <p class="font-semibold text-sm">Roulette</p>
-          <p class="text-xs text-white/80">Verteilen</p>
+          <p class="text-xs text-emerald-600/70">Verteilen</p>
         </button>
 
         <router-link
           to="/chores/leaderboard"
-          class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all block"
+          class="bg-white border-2 border-teal-200 text-teal-700 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-teal-300 transition-all block"
         >
           <div class="text-3xl mb-2">🏆</div>
           <p class="font-semibold text-sm">Leaderboard</p>
-          <p class="text-xs text-white/80">Rangliste</p>
+          <p class="text-xs text-teal-600/70">Rangliste</p>
         </router-link>
 
         <router-link
           to="/chores/preferences"
-          class="bg-gradient-to-r from-rose-400 to-pink-500 text-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all block"
+          class="bg-white border-2 border-green-200 text-green-700 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-green-300 transition-all block"
         >
           <div class="text-3xl mb-2">❤️</div>
           <p class="font-semibold text-sm">Präferenzen</p>
-          <p class="text-xs text-white/80">Vorlieben</p>
+          <p class="text-xs text-green-600/70">Vorlieben</p>
         </router-link>
       </div>
 
       <!-- My Assignments -->
-      <section class="bg-white rounded-3xl shadow-lg overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+      <section class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <h2 class="text-xl font-bold">Meine Aufgaben</h2>
           <p class="text-white/80 text-sm">{{ myAssignments.length }} zugewiesen</p>
         </div>
@@ -113,8 +113,8 @@
       </section>
 
       <!-- All Chores -->
-      <section class="bg-white rounded-3xl shadow-lg overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
+      <section class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-teal-600 to-green-600 text-white">
           <h2 class="text-xl font-bold">Alle Aufgaben</h2>
           <p class="text-white/80 text-sm">{{ chores.length }} im Haushalt</p>
         </div>
@@ -124,7 +124,7 @@
           <p class="text-gray-500">Keine Aufgaben vorhanden</p>
           <button
             @click="showCreateModal = true"
-            class="mt-4 px-6 py-2.5 bg-indigo-500 text-white rounded-full font-semibold text-sm hover:bg-indigo-600 transition-all"
+            class="mt-4 px-6 py-2.5 bg-emerald-600 text-white rounded-full font-semibold text-sm hover:bg-emerald-700 transition-all"
           >
             + Erste Aufgabe erstellen
           </button>

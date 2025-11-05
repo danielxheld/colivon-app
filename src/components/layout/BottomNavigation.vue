@@ -5,8 +5,8 @@
         v-for="item in navItems"
         :key="item.path"
         :to="item.path"
-        class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-        :class="{ 'text-indigo-600': isActive(item.path) }"
+        class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-emerald-600 transition-colors"
+        :class="{ 'text-emerald-600': isActive(item.path) }"
       >
         <component :is="item.icon" class="w-6 h-6" />
         <span class="text-xs mt-1 font-medium">{{ item.label }}</span>

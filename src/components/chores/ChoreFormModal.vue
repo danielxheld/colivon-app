@@ -3,7 +3,7 @@
     <Transition name="modal">
       <div v-if="modelValue" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" @click="handleClose">
         <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto" @click.stop>
-          <div class="p-6 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-t-3xl sticky top-0 z-10">
+          <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-t-3xl sticky top-0 z-10">
             <h2 class="text-xl font-bold">{{ isEdit ? 'Aufgabe bearbeiten' : 'Neue Aufgabe erstellen' }}</h2>
           </div>
 
@@ -15,7 +15,7 @@
                 type="text"
                 required
                 :placeholder="isEdit ? '' : 'z.B. Bad putzen'"
-                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
               />
             </div>
 
@@ -25,7 +25,7 @@
                 v-model="formData.description"
                 rows="3"
                 placeholder="Details zur Aufgabe..."
-                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors resize-none"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors resize-none"
               ></textarea>
             </div>
 
@@ -35,7 +35,7 @@
                 <select
                   v-model="formData.recurrence_type"
                   required
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
                 >
                   <option value="daily">Täglich</option>
                   <option value="weekly">Wöchentlich</option>
@@ -50,7 +50,7 @@
                 <select
                   v-model.number="formData.difficulty_points"
                   required
-                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                  class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
                 >
                   <option :value="1">⭐ Leicht</option>
                   <option :value="2">⭐⭐ Einfach</option>
@@ -66,7 +66,7 @@
               <select
                 v-model="formData.assignment_mode"
                 required
-                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:outline-none transition-colors"
               >
                 <option value="manual">Manuell zuweisen</option>
                 <option value="auto">Automatisch (Round-Robin)</option>
@@ -74,12 +74,12 @@
               </select>
             </div>
 
-            <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-xl">
+            <div class="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl">
               <input
                 v-model="formData.requires_photo"
                 type="checkbox"
                 :id="`requires_photo_${isEdit ? 'edit' : 'create'}`"
-                class="w-5 h-5 text-blue-500 rounded"
+                class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500"
               />
               <label :for="`requires_photo_${isEdit ? 'edit' : 'create'}`" class="text-sm font-medium text-gray-700 cursor-pointer">
                 Foto-Nachweis erforderlich 📷
@@ -96,7 +96,7 @@
               </button>
               <button
                 type="submit"
-                class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                class="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
               >
                 {{ isEdit ? 'Speichern' : 'Erstellen' }}
               </button>

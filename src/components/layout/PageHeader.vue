@@ -36,11 +36,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const gradientClass = computed(() => {
   const gradients = {
-    blue: 'bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600',
-    purple: 'bg-gradient-to-r from-indigo-500 to-purple-500',
-    green: 'bg-gradient-to-r from-green-500 to-emerald-500',
-    orange: 'bg-gradient-to-r from-amber-500 to-orange-500',
-    pink: 'bg-gradient-to-r from-purple-500 to-pink-500'
+    blue: 'bg-gradient-to-r from-emerald-600 to-teal-600',
+    purple: 'bg-gradient-to-r from-teal-700 to-emerald-700',
+    green: 'bg-gradient-to-r from-emerald-600 to-green-600',
+    orange: 'bg-gradient-to-r from-green-700 to-emerald-700',
+    pink: 'bg-gradient-to-r from-teal-600 to-green-600'
   }
   return gradients[props.gradient]
 })

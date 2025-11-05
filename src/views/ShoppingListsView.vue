@@ -754,17 +754,31 @@
                     </div>
                   </div>
 
-                  <div>
-                    <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">Price (€)</label>
-                    <input
-                      id="price"
-                      v-model.number="itemForm.price"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
-                      placeholder="e.g., 2.99"
-                    >
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">Price (€)</label>
+                      <input
+                        id="price"
+                        v-model.number="itemForm.price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+                        placeholder="e.g., 2.99"
+                      >
+                    </div>
+                    <div>
+                      <label for="aisle_order" class="block text-sm font-semibold text-gray-700 mb-2">🏪 Aisle #</label>
+                      <input
+                        id="aisle_order"
+                        v-model.number="itemForm.aisle_order"
+                        type="number"
+                        step="1"
+                        min="1"
+                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+                        placeholder="e.g., 5"
+                      >
+                    </div>
                   </div>
 
                   <div>
@@ -962,6 +976,7 @@ const itemForm = reactive({
   note: '',
   notes_for_shopper: '',
   price: null as number | null,
+  aisle_order: null as number | null,
   is_recurring: false,
   recurrence_interval: 'weekly' as RecurrenceInterval,
   shared_cost: true,
@@ -1172,6 +1187,7 @@ function openEditItemModal(item: ShoppingListItem) {
   itemForm.note = item.note || ''
   itemForm.notes_for_shopper = item.notes_for_shopper || ''
   itemForm.price = item.price || null
+  itemForm.aisle_order = item.aisle_order || null
   itemForm.is_recurring = item.is_recurring
   itemForm.recurrence_interval = item.recurrence_interval || 'weekly'
   itemForm.shared_cost = item.shared_cost
@@ -1190,6 +1206,7 @@ async function handleEditItem() {
       note: itemForm.note || undefined,
       notes_for_shopper: itemForm.notes_for_shopper || undefined,
       price: itemForm.price || undefined,
+      aisle_order: itemForm.aisle_order || undefined,
       is_recurring: itemForm.is_recurring,
       recurrence_interval: itemForm.is_recurring ? itemForm.recurrence_interval : undefined,
       shared_cost: itemForm.shared_cost,
@@ -1210,6 +1227,7 @@ function closeItemModal() {
   itemForm.note = ''
   itemForm.notes_for_shopper = ''
   itemForm.price = null
+  itemForm.aisle_order = null
   itemForm.is_recurring = false
   itemForm.recurrence_interval = 'weekly'
   itemForm.shared_cost = true
@@ -1239,7 +1257,18 @@ function getActiveGroupedItems(list: ShoppingList) {
 
   return Object.entries(grouped).map(([name, items]) => ({
     name,
-    items: items
+    // Sort items within category by aisle_order (if set), then by name
+    items: items.sort((a, b) => {
+      if (a.aisle_order && b.aisle_order) {
+        return a.aisle_order - b.aisle_order
+      } else if (a.aisle_order) {
+        return -1
+      } else if (b.aisle_order) {
+        return 1
+      } else {
+        return a.name.localeCompare(b.name)
+      }
+    })
   })).sort((a, b) => a.name === 'Other' ? 1 : b.name === 'Other' ? -1 : a.name.localeCompare(b.name))
 }
 

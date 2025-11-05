@@ -101,30 +101,37 @@
           </div>
         </router-link>
 
-        <!-- Chore Roulette - Coming Soon -->
-        <div class="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 overflow-hidden relative opacity-70">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full -mr-16 -mt-16"></div>
-          <div class="relative">
-            <div class="flex items-start justify-between mb-4">
-              <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg opacity-50">
-                🎲
+        <!-- Chore Roulette - Active -->
+        <router-link
+          to="/chores"
+          class="block group"
+        >
+          <div class="bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all border-2 border-blue-200 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-full -mr-16 -mt-16"></div>
+            <div class="relative">
+              <div class="flex items-start justify-between mb-4">
+                <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform">
+                  🎲
+                </div>
+                <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                  ACTIVE
+                </span>
               </div>
-              <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">
-                SOON
-              </span>
-            </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">
-              Chore Roulette
-            </h3>
-            <p class="text-gray-600 text-sm mb-3 leading-relaxed">
-              AI-powered task rotation with gamification. Fair distribution of household chores with learning preferences.
-            </p>
-            <div class="flex flex-wrap gap-2">
-              <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg">🤖 AI Learning</span>
-              <span class="px-2 py-1 bg-cyan-50 text-cyan-700 text-xs font-medium rounded-lg">🏆 Gamification</span>
+              <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                Aufgaben & Gamification
+              </h3>
+              <p class="text-gray-600 text-sm mb-4 leading-relaxed">
+                Smart task rotation with gamification. Fair distribution of household chores with XP, levels, and leaderboards.
+              </p>
+              <div class="flex items-center text-blue-600 font-semibold text-sm group-hover:translate-x-2 transition-transform">
+                Open Tasks
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
+        </router-link>
 
         <!-- Silent Hours - Coming Soon -->
         <div class="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 overflow-hidden relative opacity-70">
@@ -237,6 +244,16 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           <span class="text-xs mt-1 font-medium">Lists</span>
+        </router-link>
+
+        <router-link
+          to="/chores"
+          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-blue-600 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-xs mt-1 font-medium">Tasks</span>
         </router-link>
 
         <router-link

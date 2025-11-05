@@ -18,8 +18,8 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
       const response = await api.get('/shopping-lists', {
         params: { household_id: householdId },
       })
-      lists.value = response.data.shopping_lists
-      return response.data.shopping_lists
+      lists.value = response.data.data // API Resources return data in 'data' key
+      return response.data.data
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to fetch shopping lists'
       throw err
@@ -276,8 +276,8 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
       const response = await api.get('/favorite-items', {
         params: { household_id: householdId },
       })
-      favorites.value = response.data.favorites
-      return response.data.favorites
+      favorites.value = response.data.data // API Resources return data in 'data' key
+      return response.data.data
     } catch (err: any) {
       console.error('Failed to fetch favorites:', err)
       return []

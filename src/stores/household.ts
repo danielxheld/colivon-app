@@ -15,14 +15,14 @@ export const useHouseholdStore = defineStore('household', () => {
 
     try {
       const response = await api.get('/households')
-      households.value = response.data.households
+      households.value = response.data.data // API Resources return data in 'data' key
 
       // Set first household as current if none selected
       if (!currentHousehold.value && households.value.length > 0) {
         currentHousehold.value = households.value[0]
       }
 
-      return response.data.households
+      return response.data.data
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to fetch households'
       throw err

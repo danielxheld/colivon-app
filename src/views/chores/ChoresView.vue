@@ -161,11 +161,27 @@
 
             <!-- Completion Info -->
             <div v-if="assignment.status === 'completed' && assignment.completion" class="mt-3 pt-3 border-t border-gray-200">
-              <div class="flex items-center justify-between">
+              <div class="flex items-center justify-between mb-2">
                 <span class="text-sm text-gray-600">Erledigt am {{ formatDate(assignment.completion.completed_at) }}</span>
                 <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold">
                   +{{ assignment.completion.xp_earned }} XP
                 </span>
+              </div>
+
+              <!-- Photo Thumbnail -->
+              <div v-if="assignment.completion.photo_url" class="mt-2">
+                <img
+                  :src="assignment.completion.photo_url"
+                  alt="Completion photo"
+                  loading="lazy"
+                  class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  @click="openPhotoModal(assignment.completion.photo_url)"
+                />
+              </div>
+
+              <!-- Notes -->
+              <div v-if="assignment.completion.notes" class="mt-2 p-2 bg-gray-50 rounded-lg">
+                <p class="text-xs text-gray-600">{{ assignment.completion.notes }}</p>
               </div>
             </div>
 
@@ -552,6 +568,28 @@
       </Transition>
     </Teleport>
 
+    <!-- Photo Viewer Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="viewPhotoUrl" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" @click="viewPhotoUrl = null">
+          <button
+            @click="viewPhotoUrl = null"
+            class="absolute top-4 right-4 p-3 bg-white/20 hover:bg-white/30 rounded-full text-white backdrop-blur-sm transition-all z-10"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img
+            :src="viewPhotoUrl"
+            alt="Photo"
+            class="max-w-full max-h-full object-contain rounded-lg"
+            @click.stop
+          />
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
       <div class="flex justify-around items-center h-16 max-w-2xl mx-auto">
@@ -636,6 +674,7 @@ const selectedPhoto = ref<File | null>(null)
 const photoPreview = ref<string | null>(null)
 const completionNotes = ref('')
 const editingChore = ref<any>(null)
+const viewPhotoUrl = ref<string | null>(null)
 
 const newChore = ref({
   title: '',
@@ -684,6 +723,7 @@ async function handleCreateChore() {
     newChore.value = {
       title: '',
       description: '',
+      category: '',
       recurrence_type: 'weekly',
       difficulty_points: 3,
       assignment_mode: 'manual',
@@ -763,6 +803,10 @@ function cancelPhotoModal() {
   selectedPhoto.value = null
   photoPreview.value = null
   completionNotes.value = ''
+}
+
+function openPhotoModal(photoUrl: string) {
+  viewPhotoUrl.value = photoUrl
 }
 
 function handleEditChore(chore: any) {

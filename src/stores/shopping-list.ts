@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import api from '@/services/api'
-import type { ShoppingList, ShoppingListItem, RecurrenceInterval } from '@/types/shopping-list'
+import type { ShoppingList, ShoppingListItem, RecurrenceInterval, FavoriteItem } from '@/types/shopping-list'
 
 export const useShoppingListStore = defineStore('shoppingList', () => {
   const lists = ref<ShoppingList[]>([])
   const currentList = ref<ShoppingList | null>(null)
+  const favorites = ref<FavoriteItem[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -50,15 +51,23 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
     }
   }
 
-  async function updateList(listId: number, name: string, isPublic: boolean) {
+  async function updateList(
+    listId: number,
+    data: {
+      name?: string
+      is_public?: boolean
+      store?: string
+      is_template?: boolean
+      template_name?: string
+      estimated_total?: number
+      actual_total?: number
+    }
+  ) {
     loading.value = true
     error.value = null
 
     try {
-      const response = await api.put(`/shopping-lists/${listId}`, {
-        name,
-        is_public: isPublic,
-      })
+      const response = await api.put(`/shopping-lists/${listId}`, data)
 
       const index = lists.value.findIndex((l) => l.id === listId)
       if (index !== -1) {
@@ -100,22 +109,32 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
 
   async function addItem(
     listId: number,
-    name: string,
-    quantity?: string,
-    unit?: string,
-    isRecurring: boolean = false,
-    recurrenceInterval?: RecurrenceInterval
+    data: {
+      name: string
+      quantity?: string
+      unit?: string
+      category?: string
+      note?: string
+      price?: number
+      aisle_order?: number
+      is_recurring?: boolean
+      recurrence_interval?: RecurrenceInterval
+    }
   ) {
     loading.value = true
     error.value = null
 
     try {
       const response = await api.post(`/shopping-lists/${listId}/items`, {
-        name,
-        quantity,
-        unit,
-        is_recurring: isRecurring,
-        recurrence_interval: recurrenceInterval,
+        name: data.name,
+        quantity: data.quantity,
+        unit: data.unit,
+        category: data.category,
+        note: data.note,
+        price: data.price,
+        aisle_order: data.aisle_order,
+        is_recurring: data.is_recurring ?? false,
+        recurrence_interval: data.recurrence_interval,
       })
 
       // Update local list
@@ -139,23 +158,23 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
 
   async function updateItem(
     itemId: number,
-    name: string,
-    quantity?: string,
-    unit?: string,
-    isRecurring?: boolean,
-    recurrenceInterval?: RecurrenceInterval
+    data: {
+      name?: string
+      quantity?: string
+      unit?: string
+      category?: string
+      note?: string
+      price?: number
+      aisle_order?: number
+      is_recurring?: boolean
+      recurrence_interval?: RecurrenceInterval
+    }
   ) {
     loading.value = true
     error.value = null
 
     try {
-      const response = await api.put(`/shopping-list-items/${itemId}`, {
-        name,
-        quantity,
-        unit,
-        is_recurring: isRecurring,
-        recurrence_interval: recurrenceInterval,
-      })
+      const response = await api.put(`/shopping-list-items/${itemId}`, data)
 
       // Update local lists
       lists.value.forEach((list) => {
@@ -251,9 +270,103 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
     currentList.value = list
   }
 
+  // Favorites functions
+  async function fetchFavorites(householdId: number) {
+    try {
+      const response = await api.get('/favorite-items', {
+        params: { household_id: householdId },
+      })
+      favorites.value = response.data.favorites
+      return response.data.favorites
+    } catch (err: any) {
+      console.error('Failed to fetch favorites:', err)
+      return []
+    }
+  }
+
+  async function addFavorite(householdId: number, name: string, category?: string, quantity?: string, unit?: string) {
+    try {
+      const response = await api.post('/favorite-items', {
+        household_id: householdId,
+        name,
+        category,
+        quantity,
+        unit,
+      })
+
+      // Update or add to local favorites
+      const existingIndex = favorites.value.findIndex(f => f.name === name)
+      if (existingIndex !== -1) {
+        favorites.value[existingIndex] = response.data.favorite
+      } else {
+        favorites.value.push(response.data.favorite)
+      }
+
+      // Sort by usage count
+      favorites.value.sort((a, b) => b.usage_count - a.usage_count)
+
+      return response.data.favorite
+    } catch (err: any) {
+      console.error('Failed to add favorite:', err)
+      throw err
+    }
+  }
+
+  async function deleteFavorite(favoriteId: number) {
+    try {
+      await api.delete(`/favorite-items/${favoriteId}`)
+      favorites.value = favorites.value.filter(f => f.id !== favoriteId)
+    } catch (err: any) {
+      console.error('Failed to delete favorite:', err)
+      throw err
+    }
+  }
+
+  // Shopping mode functions
+  async function startShopping(listId: number) {
+    try {
+      const response = await api.post(`/shopping-lists/${listId}/start-shopping`)
+
+      const index = lists.value.findIndex((l) => l.id === listId)
+      if (index !== -1) {
+        lists.value[index] = response.data.shopping_list
+      }
+
+      if (currentList.value?.id === listId) {
+        currentList.value = response.data.shopping_list
+      }
+
+      return response.data.shopping_list
+    } catch (err: any) {
+      console.error('Failed to start shopping:', err)
+      throw err
+    }
+  }
+
+  async function stopShopping(listId: number) {
+    try {
+      const response = await api.post(`/shopping-lists/${listId}/stop-shopping`)
+
+      const index = lists.value.findIndex((l) => l.id === listId)
+      if (index !== -1) {
+        lists.value[index] = response.data.shopping_list
+      }
+
+      if (currentList.value?.id === listId) {
+        currentList.value = response.data.shopping_list
+      }
+
+      return response.data.shopping_list
+    } catch (err: any) {
+      console.error('Failed to stop shopping:', err)
+      throw err
+    }
+  }
+
   return {
     lists,
     currentList,
+    favorites,
     loading,
     error,
     fetchLists,
@@ -266,5 +379,10 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
     deleteItem,
     refreshList,
     setCurrentList,
+    fetchFavorites,
+    addFavorite,
+    deleteFavorite,
+    startShopping,
+    stopShopping,
   }
 })

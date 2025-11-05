@@ -39,8 +39,26 @@
         </router-link>
       </div>
 
+      <!-- Favorites Quick-Add -->
+      <div v-if="householdStore.currentHousehold && shoppingListStore.favorites.length > 0" class="mb-6">
+        <h3 class="text-sm font-bold text-gray-700 mb-3 flex items-center">
+          <span class="mr-2">⭐</span> Quick Add Favorites
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="fav in shoppingListStore.favorites.slice(0, 10)"
+            :key="fav.id"
+            @click="addFavoriteToList(fav)"
+            class="px-4 py-2 bg-white border-2 border-indigo-200 rounded-full text-sm font-medium text-gray-700 hover:border-indigo-500 hover:bg-indigo-50 transition-all active:scale-95 shadow-sm"
+          >
+            {{ fav.category ? fav.category.split(' ')[0] : '📦' }} {{ fav.name }}
+            <span v-if="fav.usage_count > 1" class="ml-1 text-xs text-gray-400">({{ fav.usage_count }})</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Loading State -->
-      <div v-else-if="shoppingListStore.loading" class="flex flex-col items-center justify-center py-20">
+      <div v-if="shoppingListStore.loading" class="flex flex-col items-center justify-center py-20">
         <div class="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
         <p class="mt-4 text-gray-600 font-medium">Loading lists...</p>
       </div>
@@ -67,15 +85,21 @@
         >
           <!-- List Header -->
           <div class="bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-4">
-            <div class="flex items-start justify-between">
+            <div class="flex items-start justify-between mb-2">
               <div class="flex-1">
                 <h3 class="text-lg font-bold text-white mb-1">{{ list.name }}</h3>
-                <div class="flex items-center space-x-2 text-white/80 text-xs">
+                <div class="flex flex-wrap items-center gap-2 text-white/80 text-xs">
                   <span class="px-2 py-0.5 bg-white/20 rounded-full">
                     {{ list.is_public ? '👥 Public' : '🔒 Private' }}
                   </span>
                   <span class="px-2 py-0.5 bg-white/20 rounded-full">
                     {{ list.items?.filter(i => !i.is_completed).length || 0 }} items
+                  </span>
+                  <span v-if="list.store" class="px-2 py-0.5 bg-white/20 rounded-full">
+                    🏪 {{ list.store }}
+                  </span>
+                  <span v-if="getListTotal(list) > 0" class="px-2 py-0.5 bg-white/20 rounded-full font-bold">
+                    💰 {{ getListTotal(list).toFixed(2) }}€
                   </span>
                 </div>
               </div>
@@ -98,6 +122,17 @@
                 </button>
               </div>
             </div>
+
+            <!-- Shopping Mode Badge -->
+            <div v-if="list.currently_shopping_by_id" class="mt-2">
+              <div class="flex items-center space-x-2 px-3 py-1.5 bg-green-500/20 border border-white/30 rounded-full text-white text-xs font-medium">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
+                </span>
+                <span>{{ list.currently_shopping_by?.name || 'Someone' }} is shopping now</span>
+              </div>
+            </div>
           </div>
 
           <!-- Add Item Form -->
@@ -118,57 +153,72 @@
             </form>
           </div>
 
-          <!-- Items List -->
+          <!-- Items List (Grouped by Category) -->
           <div class="divide-y divide-gray-100">
-            <div
-              v-for="item in list.items"
-              :key="item.id"
-              class="px-6 py-4 hover:bg-gray-50 transition-all"
-              :class="{ 'opacity-60': item.is_completed }"
-            >
-              <div class="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  :checked="item.is_completed"
-                  @change="toggleItem(item.id, list.id)"
-                  class="h-6 w-6 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded-lg cursor-pointer"
-                >
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center space-x-2">
-                    <span
-                      class="text-sm font-medium"
-                      :class="{ 'line-through text-gray-400': item.is_completed, 'text-gray-900': !item.is_completed }"
-                    >
-                      {{ item.name }}
-                    </span>
-                    <span v-if="item.is_recurring" class="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded-full font-medium">
-                      🔄 {{ item.recurrence_interval }}
-                    </span>
+            <template v-for="category in getGroupedItems(list)" :key="category.name">
+              <div v-if="category.items.length > 0" class="px-6 py-3 bg-gray-50/50">
+                <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide">
+                  {{ category.name }}
+                </h4>
+              </div>
+              <div
+                v-for="item in category.items"
+                :key="item.id"
+                class="px-6 py-4 hover:bg-gray-50 transition-all"
+                :class="{ 'opacity-60': item.is_completed }"
+              >
+                <div class="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    :checked="item.is_completed"
+                    @change="toggleItem(item.id, list.id)"
+                    class="h-6 w-6 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded-lg cursor-pointer mt-0.5 flex-shrink-0"
+                  >
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center space-x-2 flex-wrap">
+                      <span
+                        class="text-sm font-medium"
+                        :class="{ 'line-through text-gray-400': item.is_completed, 'text-gray-900': !item.is_completed }"
+                      >
+                        {{ item.name }}
+                      </span>
+                      <span v-if="item.is_recurring" class="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded-full font-medium">
+                        🔄 {{ item.recurrence_interval }}
+                      </span>
+                      <span v-if="item.price" class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full font-bold">
+                        {{ item.price }}€
+                      </span>
+                    </div>
+                    <div class="mt-1 space-y-0.5">
+                      <p v-if="item.quantity" class="text-xs text-gray-500">
+                        📦 {{ item.quantity }}{{ item.unit ? ' ' + item.unit : '' }}
+                      </p>
+                      <p v-if="item.note" class="text-xs text-gray-600 italic">
+                        💬 {{ item.note }}
+                      </p>
+                    </div>
                   </div>
-                  <p v-if="item.quantity" class="text-xs text-gray-500 mt-0.5">
-                    {{ item.quantity }}{{ item.unit ? ' ' + item.unit : '' }}
-                  </p>
-                </div>
-                <div class="flex space-x-1">
-                  <button
-                    @click="openEditItemModal(item)"
-                    class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button
-                    @click="deleteItem(item.id)"
-                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  <div class="flex space-x-1 flex-shrink-0">
+                    <button
+                      @click="openEditItemModal(item)"
+                      class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      @click="deleteItem(item.id)"
+                      class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
 
             <p v-if="!list.items || list.items.length === 0" class="px-6 py-8 text-center text-sm text-gray-400">
               No items yet. Add your first item above!
@@ -205,8 +255,7 @@
 
         <router-link
           to="/shopping-lists"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-          :class="{ 'text-indigo-600': $route.path === '/shopping-lists' }"
+          class="flex flex-col items-center justify-center flex-1 h-full text-indigo-600 transition-colors"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -279,6 +328,19 @@
                       placeholder="e.g., Weekly Groceries"
                     >
                   </div>
+
+                  <div>
+                    <label for="store" class="block text-sm font-semibold text-gray-700 mb-2">Store (optional)</label>
+                    <select
+                      id="store"
+                      v-model="listForm.store"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                    >
+                      <option value="">Select store...</option>
+                      <option v-for="store in stores" :key="store" :value="store">{{ store }}</option>
+                    </select>
+                  </div>
+
                   <div class="flex items-center p-4 bg-gray-50 rounded-2xl">
                     <input
                       id="is_public"
@@ -336,7 +398,7 @@
             leave-from-class="opacity-100 scale-100 translate-y-0"
             leave-to-class="opacity-0 scale-95 translate-y-4"
           >
-            <div v-if="showEditItemModal" class="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <div v-if="showEditItemModal" class="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
               <div class="text-center mb-6">
                 <div class="text-4xl mb-3">🛒</div>
                 <h3 class="text-2xl font-bold text-gray-900">Edit Item</h3>
@@ -354,6 +416,18 @@
                       class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
                       placeholder="e.g., Milk"
                     >
+                  </div>
+
+                  <div>
+                    <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                    <select
+                      id="category"
+                      v-model="itemForm.category"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                    >
+                      <option value="">No category</option>
+                      <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+                    </select>
                   </div>
 
                   <div class="grid grid-cols-2 gap-3">
@@ -377,6 +451,30 @@
                         placeholder="e.g., L"
                       >
                     </div>
+                  </div>
+
+                  <div>
+                    <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">Price (€)</label>
+                    <input
+                      id="price"
+                      v-model.number="itemForm.price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                      placeholder="e.g., 2.99"
+                    >
+                  </div>
+
+                  <div>
+                    <label for="note" class="block text-sm font-semibold text-gray-700 mb-2">Note</label>
+                    <textarea
+                      id="note"
+                      v-model="itemForm.note"
+                      rows="2"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all resize-none"
+                      placeholder="e.g., Bio, nur wenn im Angebot"
+                    ></textarea>
                   </div>
 
                   <div class="border-t-2 border-gray-100 pt-4">
@@ -438,12 +536,16 @@ import { useAuthStore } from '@/stores/auth'
 import { useHouseholdStore } from '@/stores/household'
 import { useShoppingListStore } from '@/stores/shopping-list'
 import { useRouter } from 'vue-router'
-import type { ShoppingList, ShoppingListItem, RecurrenceInterval } from '@/types/shopping-list'
+import type { ShoppingList, ShoppingListItem, RecurrenceInterval, FavoriteItem } from '@/types/shopping-list'
+import { ITEM_CATEGORIES, STORES } from '@/types/shopping-list'
 
 const authStore = useAuthStore()
 const householdStore = useHouseholdStore()
 const shoppingListStore = useShoppingListStore()
 const router = useRouter()
+
+const categories = ITEM_CATEGORIES
+const stores = STORES
 
 const showCreateListModal = ref(false)
 const showEditListModal = ref(false)
@@ -452,6 +554,7 @@ const editingList = ref<ShoppingList | null>(null)
 const listForm = reactive({
   name: '',
   is_public: true,
+  store: '',
 })
 
 const newItems = ref<Record<number, string>>({})
@@ -463,6 +566,9 @@ const itemForm = reactive({
   name: '',
   quantity: '',
   unit: '',
+  category: '',
+  note: '',
+  price: null as number | null,
   is_recurring: false,
   recurrence_interval: 'weekly' as RecurrenceInterval,
 })
@@ -470,6 +576,7 @@ const itemForm = reactive({
 onMounted(async () => {
   if (householdStore.currentHousehold) {
     await shoppingListStore.fetchLists(householdStore.currentHousehold.id)
+    await shoppingListStore.fetchFavorites(householdStore.currentHousehold.id)
   }
 })
 
@@ -497,6 +604,7 @@ function openEditListModal(list: ShoppingList) {
   editingList.value = list
   listForm.name = list.name
   listForm.is_public = list.is_public
+  listForm.store = list.store || ''
   showEditListModal.value = true
 }
 
@@ -504,11 +612,11 @@ async function handleEditList() {
   if (!editingList.value) return
 
   try {
-    await shoppingListStore.updateList(
-      editingList.value.id,
-      listForm.name,
-      listForm.is_public
-    )
+    await shoppingListStore.updateList(editingList.value.id, {
+      name: listForm.name,
+      is_public: listForm.is_public,
+      store: listForm.store || undefined,
+    })
     closeModals()
   } catch (error) {
     console.error('Failed to update list:', error)
@@ -527,6 +635,7 @@ function closeModals() {
   editingList.value = null
   listForm.name = ''
   listForm.is_public = true
+  listForm.store = ''
 }
 
 async function addItemToList(listId: number) {
@@ -534,10 +643,43 @@ async function addItemToList(listId: number) {
   if (!itemName) return
 
   try {
-    await shoppingListStore.addItem(listId, itemName)
+    await shoppingListStore.addItem(listId, { name: itemName })
     newItems.value[listId] = ''
+
+    // Track as favorite if household exists
+    if (householdStore.currentHousehold) {
+      await shoppingListStore.addFavorite(householdStore.currentHousehold.id, itemName)
+    }
   } catch (error) {
     console.error('Failed to add item:', error)
+  }
+}
+
+async function addFavoriteToList(favorite: FavoriteItem) {
+  // Find first list or prompt user
+  const list = shoppingListStore.lists[0]
+  if (!list) return
+
+  try {
+    await shoppingListStore.addItem(list.id, {
+      name: favorite.name,
+      category: favorite.category || undefined,
+      quantity: favorite.quantity || undefined,
+      unit: favorite.unit || undefined,
+    })
+
+    // Increment favorite usage
+    if (householdStore.currentHousehold) {
+      await shoppingListStore.addFavorite(
+        householdStore.currentHousehold.id,
+        favorite.name,
+        favorite.category || undefined,
+        favorite.quantity || undefined,
+        favorite.unit || undefined
+      )
+    }
+  } catch (error) {
+    console.error('Failed to add favorite to list:', error)
   }
 }
 
@@ -564,6 +706,9 @@ function openEditItemModal(item: ShoppingListItem) {
   itemForm.name = item.name
   itemForm.quantity = item.quantity || ''
   itemForm.unit = item.unit || ''
+  itemForm.category = item.category || ''
+  itemForm.note = item.note || ''
+  itemForm.price = item.price || null
   itemForm.is_recurring = item.is_recurring
   itemForm.recurrence_interval = item.recurrence_interval || 'weekly'
   showEditItemModal.value = true
@@ -573,14 +718,16 @@ async function handleEditItem() {
   if (!editingItem.value) return
 
   try {
-    await shoppingListStore.updateItem(
-      editingItem.value.id,
-      itemForm.name,
-      itemForm.quantity || undefined,
-      itemForm.unit || undefined,
-      itemForm.is_recurring,
-      itemForm.is_recurring ? itemForm.recurrence_interval : undefined
-    )
+    await shoppingListStore.updateItem(editingItem.value.id, {
+      name: itemForm.name,
+      quantity: itemForm.quantity || undefined,
+      unit: itemForm.unit || undefined,
+      category: itemForm.category || undefined,
+      note: itemForm.note || undefined,
+      price: itemForm.price || undefined,
+      is_recurring: itemForm.is_recurring,
+      recurrence_interval: itemForm.is_recurring ? itemForm.recurrence_interval : undefined,
+    })
     closeItemModal()
   } catch (error) {
     console.error('Failed to update item:', error)
@@ -593,7 +740,36 @@ function closeItemModal() {
   itemForm.name = ''
   itemForm.quantity = ''
   itemForm.unit = ''
+  itemForm.category = ''
+  itemForm.note = ''
+  itemForm.price = null
   itemForm.is_recurring = false
   itemForm.recurrence_interval = 'weekly'
+}
+
+function getGroupedItems(list: ShoppingList) {
+  if (!list.items) return []
+
+  const grouped: { [key: string]: ShoppingListItem[] } = {}
+
+  list.items.forEach(item => {
+    const category = item.category || 'Other'
+    if (!grouped[category]) {
+      grouped[category] = []
+    }
+    grouped[category].push(item)
+  })
+
+  return Object.entries(grouped).map(([name, items]) => ({
+    name,
+    items: items.sort((a, b) => (a.is_completed === b.is_completed ? 0 : a.is_completed ? 1 : -1))
+  })).sort((a, b) => a.name === 'Other' ? 1 : b.name === 'Other' ? -1 : a.name.localeCompare(b.name))
+}
+
+function getListTotal(list: ShoppingList): number {
+  if (!list.items) return 0
+  return list.items
+    .filter(item => !item.is_completed && item.price)
+    .reduce((sum, item) => sum + (item.price || 0), 0)
 }
 </script>

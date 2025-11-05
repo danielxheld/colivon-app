@@ -1,32 +1,24 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-emerald-50/30 via-teal-50/20 to-green-50/30 pb-20">
-    <!-- Header -->
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-gray-200/50 shadow-sm">
-      <div class="px-4 py-4">
-        <div class="flex items-center justify-between max-w-2xl mx-auto">
-          <router-link to="/" class="flex items-center space-x-3">
-            <div class="text-2xl">🏠</div>
-            <div>
-              <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                Households
-              </h1>
-              <p class="text-xs text-gray-500">Manage your communities</p>
-            </div>
-          </router-link>
-          <div class="flex items-center space-x-2">
-            <button
-              @click="showJoinModal = true"
-              class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
-              title="Join Household"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
+    <!-- Hero Header -->
+    <PageHeader
+      title="Households"
+      subtitle="Manage your communities"
+      icon="🏡"
+      gradient="purple"
+    >
+      <template #actions>
+        <button
+          @click="showJoinModal = true"
+          class="p-3 bg-white/20 hover:bg-white/30 rounded-2xl backdrop-blur-sm transition-all"
+          title="Join Household"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+        </button>
+      </template>
+    </PageHeader>
 
     <main class="px-4 py-6 max-w-2xl mx-auto">
       <!-- Loading State -->
@@ -318,6 +310,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useHouseholdStore } from '@/stores/household'
 import type { Household } from '@/types/household'
 import BottomNavigation from '@/components/layout/BottomNavigation.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

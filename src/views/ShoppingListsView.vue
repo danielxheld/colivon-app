@@ -1,29 +1,23 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-emerald-50/30 via-teal-50/20 to-green-50/30 pb-20">
-    <!-- Top Header -->
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-gray-200/50 shadow-sm">
-      <div class="px-4 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <router-link to="/" class="text-2xl">🏠</router-link>
-            <div>
-              <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                Shopping Lists
-              </h1>
-              <p class="text-xs text-gray-500">{{ householdStore.currentHousehold?.name || 'No household' }}</p>
-            </div>
-          </div>
-          <router-link
-            to="/households"
-            class="p-2 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          </router-link>
-        </div>
-      </div>
-    </header>
+    <!-- Hero Header -->
+    <PageHeader
+      title="Shopping Lists"
+      :subtitle="householdStore.currentHousehold?.name || 'No household'"
+      icon="🛒"
+      gradient="green"
+    >
+      <template #actions>
+        <router-link
+          to="/households"
+          class="p-3 bg-white/20 hover:bg-white/30 rounded-2xl backdrop-blur-sm transition-all"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </router-link>
+      </template>
+    </PageHeader>
 
     <main class="px-4 py-6 max-w-2xl mx-auto">
       <!-- No Household Warning -->
@@ -495,6 +489,7 @@ import { useRouter } from 'vue-router'
 import type { ShoppingList, ShoppingListItem, RecurrenceInterval, FavoriteItem } from '@/types/shopping-list'
 import { ITEM_CATEGORIES, STORES } from '@/types/shopping-list'
 import BottomNavigation from '@/components/layout/BottomNavigation.vue'
+import PageHeader from '@/components/layout/PageHeader.vue'
 
 const authStore = useAuthStore()
 const householdStore = useHouseholdStore()

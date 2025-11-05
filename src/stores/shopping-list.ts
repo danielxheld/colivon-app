@@ -419,6 +419,50 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
     }
   }
 
+  // Template functions
+  async function fetchTemplates(householdId: number) {
+    try {
+      const response = await api.get('/shopping-list-templates', {
+        params: { household_id: householdId },
+      })
+      return response.data.data
+    } catch (err: any) {
+      console.error('Failed to fetch templates:', err)
+      return []
+    }
+  }
+
+  async function createFromTemplate(templateId: number, name: string) {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await api.post(`/shopping-lists/${templateId}/create-from-template`, {
+        name,
+      })
+
+      lists.value.unshift(response.data.shopping_list)
+      currentList.value = response.data.shopping_list
+
+      return response.data.shopping_list
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to create list from template'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function reactivateRecurringItems() {
+    try {
+      const response = await api.post('/shopping-lists/reactivate-recurring')
+      return response.data.count
+    } catch (err: any) {
+      console.error('Failed to reactivate recurring items:', err)
+      throw err
+    }
+  }
+
   return {
     lists,
     currentList,
@@ -444,5 +488,8 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
     unclaimItem,
     markAsBought,
     getExpenses,
+    fetchTemplates,
+    createFromTemplate,
+    reactivateRecurringItems,
   }
 })

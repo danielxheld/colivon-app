@@ -51,6 +51,37 @@
         </div>
       </div>
 
+      <!-- Templates -->
+      <div v-if="householdStore.currentHousehold && templates.length > 0" class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-gray-700 flex items-center">
+            <span class="mr-2">📋</span> List Templates
+          </h3>
+          <button
+            @click="handleReactivateRecurring"
+            class="px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-full hover:bg-blue-200 transition-all"
+          >
+            🔄 Reactivate Recurring
+          </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            v-for="template in templates"
+            :key="template.id"
+            @click="openCreateFromTemplateModal(template)"
+            class="p-4 bg-white border-2 border-blue-200 rounded-2xl text-left hover:border-blue-500 hover:bg-blue-50 transition-all active:scale-95 shadow-sm"
+          >
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm font-bold text-gray-900">{{ template.template_name || template.name }}</span>
+              <span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full font-medium">
+                {{ template.items?.length || 0 }} items
+              </span>
+            </div>
+            <p v-if="template.store" class="text-xs text-gray-500">🏪 {{ template.store }}</p>
+          </button>
+        </div>
+      </div>
+
       <!-- Loading State -->
       <div v-if="shoppingListStore.loading" class="flex flex-col items-center justify-center py-20">
         <div class="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
@@ -73,7 +104,7 @@
       <!-- Shopping Lists -->
       <div v-else class="space-y-4">
         <div
-          v-for="list in shoppingListStore.lists"
+          v-for="list in shoppingListStore.lists.filter(l => !l.is_template)"
           :key="list.id"
           class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all"
         >
@@ -596,6 +627,32 @@
                       👥 Public (visible to all household members)
                     </label>
                   </div>
+
+                  <div class="border-t-2 border-gray-100 pt-4">
+                    <div class="flex items-center p-4 bg-blue-50 rounded-2xl mb-3">
+                      <input
+                        id="is_template"
+                        v-model="listForm.is_template"
+                        type="checkbox"
+                        class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      >
+                      <label for="is_template" class="ml-3 text-sm font-medium text-gray-900">
+                        📋 Save as Template (reuse this list later)
+                      </label>
+                    </div>
+
+                    <div v-if="listForm.is_template">
+                      <label for="template_name" class="block text-sm font-semibold text-gray-700 mb-2">Template Name</label>
+                      <input
+                        id="template_name"
+                        v-model="listForm.template_name"
+                        type="text"
+                        required
+                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                        placeholder="e.g., Weekly Groceries, Party Shopping"
+                      >
+                    </div>
+                  </div>
                 </div>
 
                 <div class="mt-8 flex space-x-3">
@@ -794,6 +851,64 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Create from Template Modal -->
+    <Transition
+      enter-active-class="transition-all duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-all duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showCreateFromTemplateModal && selectedTemplate" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20">
+          <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="closeCreateFromTemplateModal"></div>
+
+          <div class="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+            <div class="text-center mb-6">
+              <div class="text-4xl mb-3">📋</div>
+              <h3 class="text-2xl font-bold text-gray-900">Create from Template</h3>
+              <p class="text-sm text-gray-600 mt-2">{{ selectedTemplate.template_name || selectedTemplate.name }}</p>
+              <p class="text-xs text-gray-500 mt-1">{{ selectedTemplate.items?.length || 0 }} items will be copied</p>
+            </div>
+
+            <form @submit.prevent="handleCreateFromTemplate()">
+              <div class="space-y-4">
+                <div>
+                  <label for="template_list_name" class="block text-sm font-semibold text-gray-700 mb-2">New List Name</label>
+                  <input
+                    id="template_list_name"
+                    v-model="templateListName"
+                    type="text"
+                    required
+                    class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    placeholder="e.g., Weekly Groceries - Jan 15"
+                  >
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    @click="closeCreateFromTemplateModal"
+                    class="flex-1 px-6 py-3 text-sm font-bold text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    :disabled="shoppingListStore.loading"
+                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
+                  >
+                    Create List
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -824,7 +939,15 @@ const listForm = reactive({
   name: '',
   is_public: true,
   store: '',
+  is_template: false,
+  template_name: '',
 })
+
+// Templates
+const templates = ref<ShoppingList[]>([])
+const showCreateFromTemplateModal = ref(false)
+const selectedTemplate = ref<ShoppingList | null>(null)
+const templateListName = ref('')
 
 const newItems = ref<Record<number, string>>({})
 
@@ -857,6 +980,7 @@ onMounted(async () => {
   if (householdStore.currentHousehold) {
     await shoppingListStore.fetchLists(householdStore.currentHousehold.id)
     await shoppingListStore.fetchFavorites(householdStore.currentHousehold.id)
+    templates.value = await shoppingListStore.fetchTemplates(householdStore.currentHousehold.id)
   }
 })
 
@@ -864,11 +988,22 @@ async function handleCreateList() {
   if (!householdStore.currentHousehold) return
 
   try {
-    await shoppingListStore.createList(
+    const list = await shoppingListStore.createList(
       householdStore.currentHousehold.id,
       listForm.name,
       listForm.is_public
     )
+
+    // Update to template if needed
+    if (listForm.is_template && listForm.template_name) {
+      await shoppingListStore.updateList(list.id, {
+        is_template: true,
+        template_name: listForm.template_name,
+      })
+      // Refresh templates list
+      templates.value = await shoppingListStore.fetchTemplates(householdStore.currentHousehold.id)
+    }
+
     closeModals()
   } catch (error) {
     console.error('Failed to create list:', error)
@@ -880,18 +1015,28 @@ function openEditListModal(list: ShoppingList) {
   listForm.name = list.name
   listForm.is_public = list.is_public
   listForm.store = list.store || ''
+  listForm.is_template = list.is_template
+  listForm.template_name = list.template_name || ''
   showEditListModal.value = true
 }
 
 async function handleEditList() {
-  if (!editingList.value) return
+  if (!editingList.value || !householdStore.currentHousehold) return
 
   try {
     await shoppingListStore.updateList(editingList.value.id, {
       name: listForm.name,
       is_public: listForm.is_public,
       store: listForm.store || undefined,
+      is_template: listForm.is_template,
+      template_name: listForm.is_template ? listForm.template_name : undefined,
     })
+
+    // Refresh templates list if template status changed
+    if (listForm.is_template || editingList.value.is_template) {
+      templates.value = await shoppingListStore.fetchTemplates(householdStore.currentHousehold.id)
+    }
+
     closeModals()
   } catch (error) {
     console.error('Failed to update list:', error)
@@ -911,6 +1056,48 @@ function closeModals() {
   listForm.name = ''
   listForm.is_public = true
   listForm.store = ''
+  listForm.is_template = false
+  listForm.template_name = ''
+}
+
+// Template functions
+function openCreateFromTemplateModal(template: ShoppingList) {
+  selectedTemplate.value = template
+  templateListName.value = `${template.template_name || template.name} - ${new Date().toLocaleDateString()}`
+  showCreateFromTemplateModal.value = true
+}
+
+async function handleCreateFromTemplate() {
+  if (!selectedTemplate.value || !householdStore.currentHousehold) return
+
+  try {
+    await shoppingListStore.createFromTemplate(selectedTemplate.value.id, templateListName.value)
+    closeCreateFromTemplateModal()
+  } catch (error) {
+    console.error('Failed to create list from template:', error)
+  }
+}
+
+function closeCreateFromTemplateModal() {
+  showCreateFromTemplateModal.value = false
+  selectedTemplate.value = null
+  templateListName.value = ''
+}
+
+async function handleReactivateRecurring() {
+  if (!householdStore.currentHousehold) return
+
+  try {
+    const count = await shoppingListStore.reactivateRecurringItems()
+    if (count > 0) {
+      await shoppingListStore.fetchLists(householdStore.currentHousehold.id)
+      alert(`${count} recurring item(s) were reactivated!`)
+    } else {
+      alert('No recurring items to reactivate.')
+    }
+  } catch (error) {
+    console.error('Failed to reactivate recurring items:', error)
+  }
 }
 
 async function addItemToList(listId: number) {

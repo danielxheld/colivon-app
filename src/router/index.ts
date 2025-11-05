@@ -41,6 +41,12 @@ const router = createRouter({
       component: () => import('../views/chores/ChoresView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/chores/leaderboard',
+      name: 'chores-leaderboard',
+      component: () => import('../views/chores/LeaderboardView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

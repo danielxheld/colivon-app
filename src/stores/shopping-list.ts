@@ -365,6 +365,58 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
     }
   }
 
+  async function claimItem(itemId: number) {
+    try {
+      const response = await api.post(`/shopping-list-items/${itemId}/claim`)
+      await refreshListByItemId(itemId)
+      return response.data.item
+    } catch (err: any) {
+      console.error('Failed to claim item:', err)
+      throw err
+    }
+  }
+
+  async function unclaimItem(itemId: number) {
+    try {
+      const response = await api.post(`/shopping-list-items/${itemId}/unclaim`)
+      await refreshListByItemId(itemId)
+      return response.data.item
+    } catch (err: any) {
+      console.error('Failed to unclaim item:', err)
+      throw err
+    }
+  }
+
+  async function markAsBought(itemId: number, actualPrice?: number) {
+    try {
+      const response = await api.post(`/shopping-list-items/${itemId}/mark-bought`, {
+        actual_price: actualPrice,
+      })
+      await refreshListByItemId(itemId)
+      return response.data.item
+    } catch (err: any) {
+      console.error('Failed to mark item as bought:', err)
+      throw err
+    }
+  }
+
+  async function getExpenses(listId: number) {
+    try {
+      const response = await api.get(`/shopping-lists/${listId}/expenses`)
+      return response.data
+    } catch (err: any) {
+      console.error('Failed to get expenses:', err)
+      throw err
+    }
+  }
+
+  async function refreshListByItemId(itemId: number) {
+    const list = lists.value.find(l => l.items?.some(i => i.id === itemId))
+    if (list) {
+      await refreshList(list.id)
+    }
+  }
+
   return {
     lists,
     currentList,
@@ -386,5 +438,9 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
     deleteFavorite,
     startShopping,
     stopShopping,
+    claimItem,
+    unclaimItem,
+    markAsBought,
+    getExpenses,
   }
 })

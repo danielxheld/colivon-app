@@ -199,6 +199,30 @@
           <p class="text-xs text-gray-500 mt-1">Gesamt Aufgaben</p>
         </div>
       </div>
+
+      <!-- My Awards -->
+      <section v-if="myAwards.length > 0" class="bg-white rounded-3xl shadow-lg overflow-hidden">
+        <div class="p-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+          <h2 class="text-xl font-bold">Meine Awards</h2>
+          <p class="text-white/80 text-sm">{{ myAwards.length }} freigeschaltet</p>
+        </div>
+        <div class="grid grid-cols-3 gap-3 p-6">
+          <div
+            v-for="award in myAwards"
+            :key="award.id"
+            class="flex flex-col items-center p-3 rounded-2xl"
+            :class="{
+              'bg-yellow-50 border-2 border-yellow-400': award.award.rarity === 'legendary',
+              'bg-purple-50 border-2 border-purple-400': award.award.rarity === 'epic',
+              'bg-blue-50 border-2 border-blue-400': award.award.rarity === 'rare',
+              'bg-gray-50 border-2 border-gray-300': award.award.rarity === 'common',
+            }"
+          >
+            <div class="text-4xl mb-2">{{ award.award.icon }}</div>
+            <p class="text-xs font-bold text-center text-gray-900">{{ award.award.name }}</p>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Bottom Navigation -->
@@ -265,6 +289,7 @@ import { useChoreStore } from '@/stores/chore'
 import { useHouseholdStore } from '@/stores/household'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import api from '@/services/api'
 
 const choreStore = useChoreStore()
 const householdStore = useHouseholdStore()
@@ -277,6 +302,7 @@ const { currentHousehold } = storeToRefs(householdStore)
 const currentTab = ref<'monthly' | 'alltime'>('monthly')
 const allTimeLeaderboard = ref<any[]>([])
 const myRank = ref<any>(null)
+const myAwards = ref<any[]>([])
 
 const leaderboard = computed(() => {
   return currentTab.value === 'monthly' ? monthlyLeaderboard.value : allTimeLeaderboard.value
@@ -305,6 +331,7 @@ async function loadLeaderboards() {
     await Promise.all([
       choreStore.fetchMonthlyLeaderboard(currentHousehold.value.id),
       fetchAllTimeLeaderboard(),
+      loadMyAwards(),
     ])
 
     await loadMyRank()
@@ -313,11 +340,24 @@ async function loadLeaderboards() {
   }
 }
 
+async function loadMyAwards() {
+  if (!currentHousehold.value) return
+
+  try {
+    const response = await api.get('/awards/my', {
+      params: { household_id: currentHousehold.value.id },
+    })
+    myAwards.value = response.data.data
+  } catch (err) {
+    console.error('Failed to load awards:', err)
+  }
+}
+
 async function fetchAllTimeLeaderboard() {
   if (!currentHousehold.value) return
 
   try {
-    const response = await choreStore.$nuxt.$api.get('/gamification/leaderboard/all-time', {
+    const response = await api.get('/gamification/leaderboard/all-time', {
       params: { household_id: currentHousehold.value.id },
     })
     allTimeLeaderboard.value = response.data.data

@@ -250,16 +250,18 @@ export const useShoppingListStore = defineStore('shoppingList', () => {
     try {
       const response = await api.get(`/shopping-lists/${listId}`)
 
+      const list = response.data.data // API Resource wraps single item in 'data'
+
       const index = lists.value.findIndex((l) => l.id === listId)
       if (index !== -1) {
-        lists.value[index] = response.data.shopping_list
+        lists.value[index] = list
       }
 
       if (currentList.value?.id === listId) {
-        currentList.value = response.data.shopping_list
+        currentList.value = list
       }
 
-      return response.data.shopping_list
+      return list
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to refresh list'
       throw err

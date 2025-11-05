@@ -10,6 +10,7 @@ export interface Chore {
   created_by: number
   title: string
   description?: string
+  category?: string
   recurrence_type: RecurrenceType
   recurrence_interval?: number
   difficulty_points: number

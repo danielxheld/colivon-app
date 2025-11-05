@@ -128,12 +128,20 @@
                       </span>
                     </span>
                   </div>
-                  <button
-                    @click="deleteItem(item.id)"
-                    class="text-sm text-red-600 hover:text-red-700"
-                  >
-                    ×
-                  </button>
+                  <div class="flex space-x-2">
+                    <button
+                      @click="openEditItemModal(item)"
+                      class="text-sm text-indigo-600 hover:text-indigo-700"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      @click="deleteItem(item.id)"
+                      class="text-sm text-red-600 hover:text-red-700"
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
 
                 <p v-if="!list.items || list.items.length === 0" class="text-sm text-gray-500 text-center py-4">
@@ -202,6 +210,100 @@
         </div>
       </div>
     </div>
+
+    <!-- Edit Item Modal -->
+    <div v-if="showEditItemModal" class="fixed z-10 inset-0 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeItemModal"></div>
+
+        <div class="relative bg-white rounded-lg p-8 max-w-md w-full">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Item</h3>
+
+          <form @submit.prevent="handleEditItem">
+            <div class="space-y-4">
+              <div>
+                <label for="item_name" class="block text-sm font-medium text-gray-700">Item Name</label>
+                <input
+                  id="item_name"
+                  v-model="itemForm.name"
+                  type="text"
+                  required
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="e.g., Milk"
+                >
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+                  <input
+                    id="quantity"
+                    v-model="itemForm.quantity"
+                    type="text"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="e.g., 2"
+                  >
+                </div>
+                <div>
+                  <label for="unit" class="block text-sm font-medium text-gray-700">Unit</label>
+                  <input
+                    id="unit"
+                    v-model="itemForm.unit"
+                    type="text"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="e.g., L"
+                  >
+                </div>
+              </div>
+
+              <div class="border-t pt-4">
+                <div class="flex items-center mb-3">
+                  <input
+                    id="is_recurring"
+                    v-model="itemForm.is_recurring"
+                    type="checkbox"
+                    class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  >
+                  <label for="is_recurring" class="ml-2 block text-sm text-gray-700">
+                    🔄 Recurring item (auto-recreate when completed)
+                  </label>
+                </div>
+
+                <div v-if="itemForm.is_recurring">
+                  <label for="recurrence_interval" class="block text-sm font-medium text-gray-700">Recurrence</label>
+                  <select
+                    id="recurrence_interval"
+                    v-model="itemForm.recurrence_interval"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex space-x-3">
+              <button
+                type="submit"
+                :disabled="shoppingListStore.loading"
+                class="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              >
+                Update Item
+              </button>
+              <button
+                type="button"
+                @click="closeItemModal"
+                class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -210,7 +312,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useHouseholdStore } from '@/stores/household'
 import { useShoppingListStore } from '@/stores/shopping-list'
-import type { ShoppingList } from '@/types/shopping-list'
+import type { ShoppingList, ShoppingListItem, RecurrenceInterval } from '@/types/shopping-list'
 
 const authStore = useAuthStore()
 const householdStore = useHouseholdStore()
@@ -226,6 +328,17 @@ const listForm = reactive({
 })
 
 const newItems = ref<Record<number, string>>({})
+
+const showEditItemModal = ref(false)
+const editingItem = ref<ShoppingListItem | null>(null)
+
+const itemForm = reactive({
+  name: '',
+  quantity: '',
+  unit: '',
+  is_recurring: false,
+  recurrence_interval: 'weekly' as RecurrenceInterval,
+})
 
 onMounted(async () => {
   if (householdStore.currentHousehold) {
@@ -312,5 +425,43 @@ async function deleteItem(itemId: number) {
       console.error('Failed to delete item:', error)
     }
   }
+}
+
+function openEditItemModal(item: ShoppingListItem) {
+  editingItem.value = item
+  itemForm.name = item.name
+  itemForm.quantity = item.quantity || ''
+  itemForm.unit = item.unit || ''
+  itemForm.is_recurring = item.is_recurring
+  itemForm.recurrence_interval = item.recurrence_interval || 'weekly'
+  showEditItemModal.value = true
+}
+
+async function handleEditItem() {
+  if (!editingItem.value) return
+
+  try {
+    await shoppingListStore.updateItem(
+      editingItem.value.id,
+      itemForm.name,
+      itemForm.quantity || undefined,
+      itemForm.unit || undefined,
+      itemForm.is_recurring,
+      itemForm.is_recurring ? itemForm.recurrence_interval : undefined
+    )
+    closeItemModal()
+  } catch (error) {
+    console.error('Failed to update item:', error)
+  }
+}
+
+function closeItemModal() {
+  showEditItemModal.value = false
+  editingItem.value = null
+  itemForm.name = ''
+  itemForm.quantity = ''
+  itemForm.unit = ''
+  itemForm.is_recurring = false
+  itemForm.recurrence_interval = 'weekly'
 }
 </script>

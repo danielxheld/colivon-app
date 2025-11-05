@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-12 px-4">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50/30 via-teal-50/20 to-green-50/30 py-12 px-4">
     <div class="max-w-md w-full">
       <!-- Logo/Header -->
       <div class="text-center mb-8">
-        <div class="inline-block p-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl shadow-2xl mb-6">
+        <div class="inline-block p-4 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl shadow-2xl mb-6">
           <div class="text-5xl">✨</div>
         </div>
-        <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
           Join Colivon
         </h1>
         <p class="text-gray-600">
@@ -50,7 +50,7 @@
                 type="text"
                 autocomplete="name"
                 required
-                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                 placeholder="John Doe"
               >
             </div>
@@ -70,7 +70,7 @@
                 type="email"
                 autocomplete="email"
                 required
-                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                 placeholder="your@email.com"
               >
             </div>
@@ -91,7 +91,7 @@
                 autocomplete="new-password"
                 required
                 minlength="8"
-                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                 placeholder="••••••••"
               >
             </div>
@@ -112,7 +112,7 @@
                 type="password"
                 autocomplete="new-password"
                 required
-                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                class="block w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                 placeholder="••••••••"
               >
             </div>
@@ -121,7 +121,7 @@
           <button
             type="submit"
             :disabled="authStore.loading"
-            class="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 mt-6"
+            class="w-full py-4 px-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 mt-6"
           >
             <span v-if="authStore.loading" class="flex items-center justify-center">
               <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -137,7 +137,7 @@
         <div class="mt-8 text-center">
           <p class="text-sm text-gray-600">
             Already have an account?
-            <router-link to="/login" class="font-bold text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text hover:from-indigo-700 hover:to-purple-700 transition-all">
+            <router-link to="/login" class="font-bold text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text hover:from-emerald-700 hover:to-teal-700 transition-all">
               Sign in
             </router-link>
           </p>

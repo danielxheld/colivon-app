@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 pb-20">
+  <div class="min-h-screen bg-gradient-to-br from-emerald-50/30 via-teal-50/20 to-green-50/30 pb-20">
     <!-- Top Header -->
     <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-gray-200/50 shadow-sm">
       <div class="px-4 py-4">
@@ -7,7 +7,7 @@
           <div class="flex items-center space-x-3">
             <router-link to="/" class="text-2xl">🏠</router-link>
             <div>
-              <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 Shopping Lists
               </h1>
               <p class="text-xs text-gray-500">{{ householdStore.currentHousehold?.name || 'No household' }}</p>
@@ -15,7 +15,7 @@
           </div>
           <router-link
             to="/households"
-            class="p-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg"
+            class="p-2 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -49,7 +49,7 @@
             v-for="fav in shoppingListStore.favorites.slice(0, 10)"
             :key="fav.id"
             @click="addFavoriteToList(fav)"
-            class="px-4 py-2 bg-white border-2 border-indigo-200 rounded-full text-sm font-medium text-gray-700 hover:border-indigo-500 hover:bg-indigo-50 transition-all active:scale-95 shadow-sm"
+            class="px-4 py-2 bg-white border-2 border-emerald-200 rounded-full text-sm font-medium text-gray-700 hover:border-emerald-500 hover:bg-emerald-50 transition-all active:scale-95 shadow-sm"
           >
             {{ fav.category ? fav.category.split(' ')[0] : '📦' }} {{ fav.name }}
             <span v-if="fav.usage_count > 1" class="ml-1 text-xs text-gray-400">({{ fav.usage_count }})</span>
@@ -59,7 +59,7 @@
 
       <!-- Loading State -->
       <div v-if="shoppingListStore.loading" class="flex flex-col items-center justify-center py-20">
-        <div class="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div class="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
         <p class="mt-4 text-gray-600 font-medium">Loading lists...</p>
       </div>
 
@@ -70,7 +70,7 @@
         <p class="text-gray-500 text-sm mb-6">Create your first shopping list!</p>
         <button
           @click="showCreateListModal = true"
-          class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
+          class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
         >
           + Create List
         </button>
@@ -84,7 +84,7 @@
           class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all"
         >
           <!-- List Header -->
-          <div class="bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-4">
+          <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
             <div class="flex items-start justify-between mb-2">
               <div class="flex-1">
                 <h3 class="text-lg font-bold text-white mb-1">{{ list.name }}</h3>
@@ -142,11 +142,11 @@
                 v-model="newItems[list.id]"
                 type="text"
                 placeholder="Add item..."
-                class="flex-1 px-4 py-3 bg-white border-2 border-gray-200 rounded-2xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                class="flex-1 px-4 py-3 bg-white border-2 border-gray-200 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
               >
               <button
                 type="submit"
-                class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-2xl shadow-md hover:shadow-lg transition-all active:scale-95"
+                class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-2xl shadow-md hover:shadow-lg transition-all active:scale-95"
               >
                 +
               </button>
@@ -172,7 +172,7 @@
                     type="checkbox"
                     :checked="item.is_completed"
                     @change="toggleItem(item.id, list.id)"
-                    class="h-6 w-6 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded-lg cursor-pointer mt-0.5 flex-shrink-0"
+                    class="h-6 w-6 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded-lg cursor-pointer mt-0.5 flex-shrink-0"
                   >
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-2 flex-wrap">
@@ -182,7 +182,7 @@
                       >
                         {{ item.name }}
                       </span>
-                      <span v-if="item.is_recurring" class="text-xs px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded-full font-medium">
+                      <span v-if="item.is_recurring" class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded-full font-medium">
                         🔄 {{ item.recurrence_interval }}
                       </span>
                       <span v-if="item.price" class="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full font-bold">
@@ -201,7 +201,7 @@
                   <div class="flex space-x-1 flex-shrink-0">
                     <button
                       @click="openEditItemModal(item)"
-                      class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                      class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -232,7 +232,7 @@
     <button
       v-if="householdStore.currentHousehold && !shoppingListStore.loading"
       @click="showCreateListModal = true"
-      class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all active:scale-95 flex items-center justify-center z-30"
+      class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all active:scale-95 flex items-center justify-center z-30"
     >
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -240,51 +240,7 @@
     </button>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
-      <div class="flex justify-around items-center h-16 max-w-2xl mx-auto">
-        <router-link
-          to="/"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-          :class="{ 'text-indigo-600': $route.path === '/' }"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Home</span>
-        </router-link>
-
-        <router-link
-          to="/shopping-lists"
-          class="flex flex-col items-center justify-center flex-1 h-full text-indigo-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Lists</span>
-        </router-link>
-
-        <router-link
-          to="/households"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-          :class="{ 'text-indigo-600': $route.path === '/households' }"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Household</span>
-        </router-link>
-
-        <button
-          @click="handleLogout"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-red-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Logout</span>
-        </button>
-      </div>
-    </nav>
+    <BottomNavigation />
 
     <!-- Create/Edit List Modal -->
     <Transition
@@ -324,7 +280,7 @@
                       v-model="listForm.name"
                       type="text"
                       required
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                       placeholder="e.g., Weekly Groceries"
                     >
                   </div>
@@ -334,7 +290,7 @@
                     <select
                       id="store"
                       v-model="listForm.store"
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                     >
                       <option value="">Select store...</option>
                       <option v-for="store in stores" :key="store" :value="store">{{ store }}</option>
@@ -346,7 +302,7 @@
                       id="is_public"
                       v-model="listForm.is_public"
                       type="checkbox"
-                      class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                      class="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                     >
                     <label for="is_public" class="ml-3 text-sm font-medium text-gray-700">
                       👥 Public (visible to all household members)
@@ -358,7 +314,7 @@
                   <button
                     type="submit"
                     :disabled="shoppingListStore.loading"
-                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
+                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
                   >
                     {{ showEditListModal ? 'Update' : 'Create' }}
                   </button>
@@ -413,7 +369,7 @@
                       v-model="itemForm.name"
                       type="text"
                       required
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                       placeholder="e.g., Milk"
                     >
                   </div>
@@ -423,7 +379,7 @@
                     <select
                       id="category"
                       v-model="itemForm.category"
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                     >
                       <option value="">No category</option>
                       <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -437,7 +393,7 @@
                         id="quantity"
                         v-model="itemForm.quantity"
                         type="text"
-                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                         placeholder="e.g., 2"
                       >
                     </div>
@@ -447,7 +403,7 @@
                         id="unit"
                         v-model="itemForm.unit"
                         type="text"
-                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                         placeholder="e.g., L"
                       >
                     </div>
@@ -461,7 +417,7 @@
                       type="number"
                       step="0.01"
                       min="0"
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                       placeholder="e.g., 2.99"
                     >
                   </div>
@@ -478,12 +434,12 @@
                   </div>
 
                   <div class="border-t-2 border-gray-100 pt-4">
-                    <div class="flex items-center p-4 bg-indigo-50 rounded-2xl mb-3">
+                    <div class="flex items-center p-4 bg-emerald-50 rounded-2xl mb-3">
                       <input
                         id="is_recurring"
                         v-model="itemForm.is_recurring"
                         type="checkbox"
-                        class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        class="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
                       >
                       <label for="is_recurring" class="ml-3 text-sm font-medium text-gray-900">
                         🔄 Recurring item (auto-recreate when completed)
@@ -495,7 +451,7 @@
                       <select
                         id="recurrence_interval"
                         v-model="itemForm.recurrence_interval"
-                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                        class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                       >
                         <option value="daily">Daily</option>
                         <option value="weekly">Weekly</option>
@@ -509,7 +465,7 @@
                   <button
                     type="submit"
                     :disabled="shoppingListStore.loading"
-                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
+                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
                   >
                     Update Item
                   </button>
@@ -538,6 +494,7 @@ import { useShoppingListStore } from '@/stores/shopping-list'
 import { useRouter } from 'vue-router'
 import type { ShoppingList, ShoppingListItem, RecurrenceInterval, FavoriteItem } from '@/types/shopping-list'
 import { ITEM_CATEGORIES, STORES } from '@/types/shopping-list'
+import BottomNavigation from '@/components/layout/BottomNavigation.vue'
 
 const authStore = useAuthStore()
 const householdStore = useHouseholdStore()
@@ -579,11 +536,6 @@ onMounted(async () => {
     await shoppingListStore.fetchFavorites(householdStore.currentHousehold.id)
   }
 })
-
-async function handleLogout() {
-  await authStore.logout()
-  router.push('/login')
-}
 
 async function handleCreateList() {
   if (!householdStore.currentHousehold) return

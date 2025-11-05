@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 pb-20">
+  <div class="min-h-screen bg-gradient-to-br from-emerald-50/30 via-teal-50/20 to-green-50/30 pb-20">
     <!-- Header -->
     <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-gray-200/50 shadow-sm">
       <div class="px-4 py-4">
@@ -7,7 +7,7 @@
           <router-link to="/" class="flex items-center space-x-3">
             <div class="text-2xl">🏠</div>
             <div>
-              <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                 Households
               </h1>
               <p class="text-xs text-gray-500">Manage your communities</p>
@@ -16,7 +16,7 @@
           <div class="flex items-center space-x-2">
             <button
               @click="showJoinModal = true"
-              class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+              class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
               title="Join Household"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,7 +31,7 @@
     <main class="px-4 py-6 max-w-2xl mx-auto">
       <!-- Loading State -->
       <div v-if="householdStore.loading" class="flex flex-col items-center justify-center py-20">
-        <div class="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <div class="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
         <p class="mt-4 text-gray-600 font-medium">Loading households...</p>
       </div>
 
@@ -43,13 +43,13 @@
         <div class="flex flex-col sm:flex-row gap-3">
           <button
             @click="showCreateModal = true"
-            class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
+            class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
           >
             + Create Household
           </button>
           <button
             @click="showJoinModal = true"
-            class="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-full border-2 border-indigo-600 hover:bg-indigo-50 transition-all"
+            class="px-6 py-3 bg-white text-emerald-600 font-semibold rounded-full border-2 border-emerald-600 hover:bg-emerald-50 transition-all"
           >
             Join with Code
           </button>
@@ -63,7 +63,7 @@
           v-for="household in householdStore.households"
           :key="household.id"
           class="bg-white rounded-3xl shadow-lg overflow-hidden border transition-all cursor-pointer group"
-          :class="householdStore.currentHousehold?.id === household.id ? 'border-2 border-indigo-500' : 'border border-gray-100 hover:border-indigo-300 hover:shadow-xl'"
+          :class="householdStore.currentHousehold?.id === household.id ? 'border-2 border-emerald-500' : 'border border-gray-100 hover:border-emerald-300 hover:shadow-xl'"
           @click="selectHousehold(household)"
         >
           <div class="p-6">
@@ -73,7 +73,7 @@
                   <h3 class="text-xl font-bold text-gray-900">{{ household.name }}</h3>
                   <span
                     v-if="householdStore.currentHousehold?.id === household.id"
-                    class="px-2 py-0.5 bg-indigo-100 text-indigo-600 text-xs font-bold rounded-full"
+                    class="px-2 py-0.5 bg-emerald-100 text-emerald-600 text-xs font-bold rounded-full"
                   >
                     ACTIVE
                   </span>
@@ -95,7 +95,7 @@
                 </div>
               </div>
               <div
-                class="flex items-center text-indigo-600 font-semibold text-sm group-hover:translate-x-1 transition-transform"
+                class="flex items-center text-emerald-600 font-semibold text-sm group-hover:translate-x-1 transition-transform"
               >
                 {{ householdStore.currentHousehold?.id === household.id ? 'Current' : 'Select' }}
                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +113,7 @@
                 </div>
                 <button
                   @click.stop="copyInviteCode(household.invite_code)"
-                  class="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all"
+                  class="p-2 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-all"
                   title="Copy code"
                 >
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +131,7 @@
     <button
       v-if="!householdStore.loading"
       @click="showCreateModal = true"
-      class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all active:scale-95 flex items-center justify-center z-30"
+      class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all active:scale-95 flex items-center justify-center z-30"
     >
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -139,49 +139,7 @@
     </button>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
-      <div class="flex justify-around items-center h-16 max-w-2xl mx-auto">
-        <router-link
-          to="/"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Home</span>
-        </router-link>
-
-        <router-link
-          to="/shopping-lists"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Lists</span>
-        </router-link>
-
-        <router-link
-          to="/households"
-          class="flex flex-col items-center justify-center flex-1 h-full text-indigo-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Household</span>
-        </router-link>
-
-        <button
-          @click="handleLogout"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-red-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Logout</span>
-        </button>
-      </div>
-    </nav>
+    <BottomNavigation />
 
     <!-- Create Household Modal -->
     <Transition
@@ -219,7 +177,7 @@
                       v-model="createForm.name"
                       type="text"
                       required
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                       placeholder="e.g., My Awesome WG"
                     >
                   </div>
@@ -229,7 +187,7 @@
                       id="description"
                       v-model="createForm.description"
                       rows="3"
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all resize-none"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all resize-none"
                       placeholder="Tell us about your household"
                     ></textarea>
                   </div>
@@ -239,7 +197,7 @@
                   <button
                     type="submit"
                     :disabled="householdStore.loading"
-                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
+                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
                   >
                     Create
                   </button>
@@ -295,7 +253,7 @@
                       v-model="joinForm.inviteCode"
                       type="text"
                       required
-                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all font-mono text-lg tracking-wider uppercase text-center"
+                      class="block w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all font-mono text-lg tracking-wider uppercase text-center"
                       placeholder="XXXXXXXX"
                       maxlength="8"
                     >
@@ -310,7 +268,7 @@
                   <button
                     type="submit"
                     :disabled="householdStore.loading"
-                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
+                    class="flex-1 px-6 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl hover:shadow-lg disabled:opacity-50 transition-all active:scale-95"
                   >
                     Join
                   </button>
@@ -359,6 +317,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useHouseholdStore } from '@/stores/household'
 import type { Household } from '@/types/household'
+import BottomNavigation from '@/components/layout/BottomNavigation.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -406,11 +365,6 @@ async function handleJoinHousehold() {
 function selectHousehold(household: Household) {
   householdStore.setCurrentHousehold(household)
   router.push('/')
-}
-
-async function handleLogout() {
-  await authStore.logout()
-  router.push('/login')
 }
 
 async function copyInviteCode(code: string) {

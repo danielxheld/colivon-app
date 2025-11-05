@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 pb-20">
+  <div class="min-h-screen bg-gradient-to-br from-emerald-50/30 via-teal-50/20 to-green-50/30 pb-20">
     <!-- Hero Header -->
-    <header class="bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 text-white">
+    <header class="bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 text-white">
       <div class="px-6 py-12 max-w-2xl mx-auto">
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center space-x-3">
@@ -96,7 +96,7 @@
         </p>
         <router-link
           to="/chores"
-          class="inline-flex items-center px-5 py-2.5 text-sm font-semibold bg-purple-500 text-white rounded-full hover:shadow-lg transition-all"
+          class="inline-flex items-center px-5 py-2.5 text-sm font-semibold bg-emerald-600 text-white rounded-full hover:shadow-lg transition-all"
         >
           Zu Aufgaben →
         </router-link>
@@ -104,7 +104,7 @@
 
       <!-- Preferences List -->
       <section v-else class="bg-white rounded-3xl shadow-lg overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+        <div class="p-6 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
           <h2 class="text-xl font-bold">Meine Vorlieben</h2>
           <p class="text-white/80 text-sm">{{ chores.length }} Aufgaben</p>
         </div>
@@ -142,8 +142,8 @@
             </div>
 
             <!-- Current Preference Info -->
-            <div v-if="getChorePreference(chore.id)" class="mt-3 p-3 bg-purple-50 rounded-xl">
-              <p class="text-sm text-purple-800">
+            <div v-if="getChorePreference(chore.id)" class="mt-3 p-3 bg-emerald-50 rounded-xl">
+              <p class="text-sm text-emerald-800">
                 <span class="font-semibold">Aktuell:</span>
                 {{ getPreferenceLabel(getChorePreference(chore.id)?.preference) }}
                 • {{ getChorePreference(chore.id)?.weight }}x Wahrscheinlichkeit im Roulette
@@ -154,7 +154,7 @@
       </section>
 
       <!-- Stats Card -->
-      <div v-if="chores.length > 0" class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl p-6 text-white shadow-xl">
+      <div v-if="chores.length > 0" class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-6 text-white shadow-xl">
         <h3 class="text-lg font-bold mb-4">Deine Präferenz-Statistiken</h3>
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
@@ -187,59 +187,7 @@
     </main>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-inset-bottom">
-      <div class="flex justify-around items-center h-16 max-w-2xl mx-auto">
-        <router-link
-          to="/"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Home</span>
-        </router-link>
-
-        <router-link
-          to="/shopping-lists"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Lists</span>
-        </router-link>
-
-        <router-link
-          to="/chores"
-          class="flex flex-col items-center justify-center flex-1 h-full text-blue-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Tasks</span>
-        </router-link>
-
-        <router-link
-          to="/households"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-indigo-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Household</span>
-        </router-link>
-
-        <button
-          @click="handleLogout"
-          class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-red-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span class="text-xs mt-1 font-medium">Logout</span>
-        </button>
-      </div>
-    </nav>
+    <BottomNavigation />
   </div>
 </template>
 
@@ -252,6 +200,8 @@ import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/composables/useToast'
 import type { ChorePreference } from '@/types/chore'
+import BottomNavigation from '@/components/layout/BottomNavigation.vue'
+import api from '@/services/api'
 
 const choreStore = useChoreStore()
 const householdStore = useHouseholdStore()
@@ -289,7 +239,7 @@ async function loadUserPreferences() {
   if (!currentHousehold.value) return
 
   try {
-    const response = await choreStore.$nuxt.$api.get('/chore-preferences', {
+    const response = await api.get('/chore-preferences', {
       params: { household_id: currentHousehold.value.id },
     })
 
@@ -304,11 +254,11 @@ async function loadUserPreferences() {
   }
 }
 
-async function setPreference(choreId: number, preference: ChorePreference) {
+async function setPreference(choreId: number, preference: string) {
   if (!currentHousehold.value) return
 
   try {
-    const response = await choreStore.$nuxt.$api.post('/chore-preferences', {
+    const response = await api.post('/chore-preferences', {
       chore_id: choreId,
       preference: preference,
     })
@@ -358,11 +308,6 @@ function translateRecurrence(type: string) {
     custom: 'Benutzerdefiniert',
   }
   return translations[type] || type
-}
-
-async function handleLogout() {
-  await authStore.logout()
-  router.push('/login')
 }
 </script>
 

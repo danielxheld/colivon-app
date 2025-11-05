@@ -83,7 +83,7 @@
       </div>
 
       <!-- Quick Actions -->
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-3 gap-3">
         <button
           @click="handleRunRoulette"
           :disabled="!householdStore.currentHousehold"
@@ -91,7 +91,7 @@
         >
           <div class="text-3xl mb-2">🎰</div>
           <p class="font-semibold text-sm">Roulette</p>
-          <p class="text-xs text-white/80">Neu verteilen</p>
+          <p class="text-xs text-white/80">Verteilen</p>
         </button>
 
         <router-link
@@ -101,6 +101,15 @@
           <div class="text-3xl mb-2">🏆</div>
           <p class="font-semibold text-sm">Leaderboard</p>
           <p class="text-xs text-white/80">Rangliste</p>
+        </router-link>
+
+        <router-link
+          to="/chores/preferences"
+          class="bg-gradient-to-r from-rose-400 to-pink-500 text-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all block"
+        >
+          <div class="text-3xl mb-2">❤️</div>
+          <p class="font-semibold text-sm">Präferenzen</p>
+          <p class="text-xs text-white/80">Vorlieben</p>
         </router-link>
       </div>
 

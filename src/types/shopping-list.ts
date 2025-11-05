@@ -34,6 +34,7 @@ export interface ShoppingListItem {
   is_completed: boolean
   is_recurring: boolean
   recurrence_interval: 'daily' | 'weekly' | 'monthly' | null
+  next_recurrence_date?: string | null
   completed_at: string | null
   created_at: string
   updated_at: string

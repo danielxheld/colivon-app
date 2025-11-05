@@ -147,9 +147,9 @@
             </form>
           </div>
 
-          <!-- Items List (Grouped by Category) -->
+          <!-- Active Items (Grouped by Category) -->
           <div class="divide-y divide-gray-100">
-            <template v-for="category in getGroupedItems(list)" :key="category.name">
+            <template v-for="category in getActiveGroupedItems(list)" :key="category.name">
               <div v-if="category.items.length > 0" class="px-6 py-3 bg-gray-50/50">
                 <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wide">
                   {{ category.name }}
@@ -159,7 +159,6 @@
                 v-for="item in category.items"
                 :key="item.id"
                 class="px-6 py-4 hover:bg-gray-50 transition-all"
-                :class="{ 'opacity-60': item.is_completed }"
               >
                 <div class="flex items-start space-x-3">
                   <input
@@ -170,10 +169,7 @@
                   >
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-2 flex-wrap">
-                      <span
-                        class="text-sm font-medium"
-                        :class="{ 'line-through text-gray-400': item.is_completed, 'text-gray-900': !item.is_completed }"
-                      >
+                      <span class="text-sm font-medium text-gray-900">
                         {{ item.name }}
                       </span>
                       <span v-if="item.is_recurring" class="text-xs px-2 py-0.5 bg-emerald-100 text-emerald-600 rounded-full font-medium">
@@ -214,9 +210,58 @@
               </div>
             </template>
 
-            <p v-if="!list.items || list.items.length === 0" class="px-6 py-8 text-center text-sm text-gray-400">
+            <p v-if="getActiveItems(list).length === 0 && getCompletedItems(list).length === 0" class="px-6 py-8 text-center text-sm text-gray-400">
               No items yet. Add your first item above!
             </p>
+          </div>
+
+          <!-- Completed Items Section -->
+          <div v-if="getCompletedItems(list).length > 0" class="border-t-4 border-gray-100">
+            <div class="px-6 py-3 bg-gray-50/80">
+              <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Completed ({{ getCompletedItems(list).length }})
+              </h4>
+            </div>
+            <div class="divide-y divide-gray-50">
+              <div
+                v-for="item in getCompletedItems(list)"
+                :key="item.id"
+                class="px-6 py-3 bg-gray-50/30 hover:bg-gray-50 transition-all opacity-60"
+              >
+                <div class="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    :checked="item.is_completed"
+                    @change="toggleItem(item.id, list.id)"
+                    class="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded cursor-pointer mt-0.5 flex-shrink-0"
+                  >
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center space-x-2 flex-wrap">
+                      <span class="text-sm font-medium line-through text-gray-400">
+                        {{ item.name }}
+                      </span>
+                      <span v-if="item.is_recurring && item.next_recurrence_date" class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full font-medium">
+                        📅 Returns {{ formatDate(item.next_recurrence_date) }}
+                      </span>
+                    </div>
+                    <p v-if="item.quantity" class="text-xs text-gray-400 mt-0.5">
+                      {{ item.quantity }}{{ item.unit ? ' ' + item.unit : '' }}
+                    </p>
+                  </div>
+                  <button
+                    @click="deleteItem(item.id)"
+                    class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-all"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -694,12 +739,21 @@ function closeItemModal() {
   itemForm.recurrence_interval = 'weekly'
 }
 
-function getGroupedItems(list: ShoppingList) {
+function getActiveItems(list: ShoppingList): ShoppingListItem[] {
   if (!list.items) return []
+  return list.items.filter(item => !item.is_completed)
+}
 
+function getCompletedItems(list: ShoppingList): ShoppingListItem[] {
+  if (!list.items) return []
+  return list.items.filter(item => item.is_completed)
+}
+
+function getActiveGroupedItems(list: ShoppingList) {
+  const activeItems = getActiveItems(list)
   const grouped: { [key: string]: ShoppingListItem[] } = {}
 
-  list.items.forEach(item => {
+  activeItems.forEach(item => {
     const category = item.category || 'Other'
     if (!grouped[category]) {
       grouped[category] = []
@@ -709,8 +763,31 @@ function getGroupedItems(list: ShoppingList) {
 
   return Object.entries(grouped).map(([name, items]) => ({
     name,
-    items: items.sort((a, b) => (a.is_completed === b.is_completed ? 0 : a.is_completed ? 1 : -1))
+    items: items
   })).sort((a, b) => a.name === 'Other' ? 1 : b.name === 'Other' ? -1 : a.name.localeCompare(b.name))
+}
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  // Reset time for comparison
+  date.setHours(0, 0, 0, 0)
+  today.setHours(0, 0, 0, 0)
+  tomorrow.setHours(0, 0, 0, 0)
+
+  if (date.getTime() === today.getTime()) {
+    return 'today'
+  } else if (date.getTime() === tomorrow.getTime()) {
+    return 'tomorrow'
+  } else if (date < today) {
+    return 'overdue'
+  } else {
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
+    return date.toLocaleDateString('en-US', options)
+  }
 }
 
 function getListTotal(list: ShoppingList): number {
